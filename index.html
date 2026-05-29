@@ -1,59 +1,175 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Electrónova</title>
+<title>Electrónova | Engineering Innovation. Practical Solutions.</title>
 
 <style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
 body{
-font-family:Arial,sans-serif;
-margin:0;
-padding:0;
-background:#f5f7fa;
-color:#333;
+    background:#f5f7fa;
+    color:#333;
+    line-height:1.6;
 }
 
 header{
-background:#0a2342;
-color:white;
-padding:60px 20px;
-text-align:center;
+    background:#081c3a;
+    color:white;
+    padding:20px 8%;
+    position:sticky;
+    top:0;
+    z-index:1000;
 }
 
-header h1{
-font-size:3em;
-margin:0;
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-header p{
-font-size:1.2em;
+.logo{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.logo span{
+    color:#00b4ff;
+}
+
+nav ul{
+    list-style:none;
+    display:flex;
+    gap:20px;
+}
+
+nav a{
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.hero{
+    background:linear-gradient(rgba(8,28,58,0.85),rgba(8,28,58,0.85)),
+    url('https://images.unsplash.com/photo-1517048676732-d65bc937f952');
+    background-size:cover;
+    background-position:center;
+    color:white;
+    text-align:center;
+    padding:120px 20px;
+}
+
+.hero h1{
+    font-size:3rem;
+    margin-bottom:15px;
+}
+
+.hero p{
+    max-width:800px;
+    margin:auto;
+    margin-bottom:30px;
+}
+
+.btn{
+    display:inline-block;
+    background:#00b4ff;
+    color:white;
+    padding:12px 24px;
+    border-radius:5px;
+    text-decoration:none;
+    margin:5px;
 }
 
 section{
-padding:50px 20px;
-max-width:1000px;
-margin:auto;
+    padding:70px 8%;
 }
 
-.services{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:20px;
+.section-title{
+    text-align:center;
+    margin-bottom:40px;
+    color:#081c3a;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
 }
 
 .card{
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.projects{
+    background:#eef3f9;
+}
+
+.about{
+    text-align:center;
+    max-width:900px;
+    margin:auto;
+}
+
+.why-us ul{
+    max-width:600px;
+    margin:auto;
+    list-style:none;
+}
+
+.why-us li{
+    background:white;
+    margin:10px 0;
+    padding:15px;
+    border-radius:8px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.contact{
+    text-align:center;
+}
+
+.contact p{
+    margin:10px 0;
 }
 
 footer{
-background:#0a2342;
-color:white;
-text-align:center;
-padding:20px;
+    background:#081c3a;
+    color:white;
+    text-align:center;
+    padding:25px;
+}
+
+@media(max-width:768px){
+
+nav{
+    flex-direction:column;
+}
+
+nav ul{
+    margin-top:15px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+.hero h1{
+    font-size:2rem;
+}
+
 }
 </style>
 </head>
@@ -61,67 +177,163 @@ padding:20px;
 <body>
 
 <header>
-<h1>Electrónova</h1>
-<p>Engineering Innovation. Practical Solutions.</p>
+<nav>
+<div class="logo">Electrón<span>ova</span></div>
+
+<ul>
+<li><a href="#home">Home</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#projects">Projects</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+</nav>
 </header>
 
-<section>
-<h2>About Us</h2>
+<section class="hero" id="home">
+<h1>Engineering Innovation. Practical Solutions.</h1>
+
 <p>
-Electrónova delivers practical engineering solutions in industrial automation,
-embedded systems, IoT, electrical engineering, and technical project development.
-We help businesses, institutions, homeowners, and students turn ideas into reality.
+Transforming ideas into reliable engineering solutions through industrial automation,
+embedded systems, IoT, telecommunications, electrical engineering,
+and technical project development.
 </p>
+
+<a href="#contact" class="btn">Contact Us</a>
+<a href="#projects" class="btn">Our Projects</a>
 </section>
 
-<section>
-<h2>Our Services</h2>
+<section id="services">
+<h2 class="section-title">Our Services</h2>
 
-<div class="services">
+<div class="cards">
 
 <div class="card">
 <h3>Industrial Automation</h3>
-<p>PLC programming, control systems and process automation.</p>
+<p>PLC programming, SCADA systems, process control and industrial maintenance solutions.</p>
 </div>
 
 <div class="card">
-<h3>Embedded Systems</h3>
-<p>Arduino, AVR, sensors, and custom electronics.</p>
-</div>
-
-<div class="card">
-<h3>IoT Solutions</h3>
-<p>Remote monitoring, smart devices and connected systems.</p>
+<h3>Embedded Systems & IoT</h3>
+<p>Arduino, ESP32, remote monitoring systems and smart automation solutions.</p>
 </div>
 
 <div class="card">
 <h3>Electrical Engineering</h3>
-<p>Installation, maintenance and system design.</p>
+<p>Electrical installations, power systems, control panels and technical consultancy.</p>
 </div>
 
 <div class="card">
-<h3>Technical Documentation</h3>
-<p>Reports, project documentation and engineering support.</p>
+<h3>Telecommunications</h3>
+<p>Wireless communication systems, RF engineering and network infrastructure.</p>
 </div>
 
 <div class="card">
-<h3>Custom Projects</h3>
-<p>Design and fabrication of innovative engineering solutions.</p>
+<h3>Project Development</h3>
+<p>Engineering prototypes, research support and product development services.</p>
 </div>
 
 </div>
 </section>
 
-<section>
-<h2>Contact</h2>
-<p><strong>Phone:</strong> +254 103 395072</p>
+<section class="projects" id="projects">
+
+<h2 class="section-title">Featured Projects</h2>
+
+<div class="cards">
+
+<div class="card">
+<h3>Carbon Capture IoT Monitoring System</h3>
+<p>Environmental monitoring with cloud connectivity and automated control.</p>
+</div>
+
+<div class="card">
+<h3>Antenna Positioning System</h3>
+<p>Automated azimuth and elevation control for communication systems.</p>
+</div>
+
+<div class="card">
+<h3>Smart Drug Dispenser</h3>
+<p>Automated medication reminder and dispensing solution.</p>
+</div>
+
+<div class="card">
+<h3>GSM Security System</h3>
+<p>Motion detection and SMS alert system for security monitoring.</p>
+</div>
+
+<div class="card">
+<h3>Robotic Metal Detector</h3>
+<p>Remote-controlled robot with metal detection and obstacle avoidance.</p>
+</div>
+
+<div class="card">
+<h3>Automatic Egg Incubator</h3>
+<p>Temperature-controlled incubation system with automation features.</p>
+</div>
+
+</div>
+</section>
+
+<section id="about">
+
+<h2 class="section-title">About Electrónova</h2>
+
+<div class="about">
+
+<p>
+Electrónova is a Kenyan engineering and technology company focused on
+industrial automation, embedded systems, IoT, telecommunications,
+electrical engineering and technical project development.
+We help businesses, institutions, homeowners, researchers and students
+transform innovative ideas into practical solutions.
+</p>
+
+</div>
+
+</section>
+
+<section class="why-us">
+
+<h2 class="section-title">Why Choose Us?</h2>
+
+<ul>
+<li>✓ Practical Engineering Solutions</li>
+<li>✓ Innovation-Driven Approach</li>
+<li>✓ Reliable Technical Support</li>
+<li>✓ Industry Experience</li>
+<li>✓ Quality-Focused Delivery</li>
+<li>✓ Affordable Technology Solutions</li>
+</ul>
+
+</section>
+
+<section class="contact" id="contact">
+
+<h2 class="section-title">Contact Us</h2>
+
 <p><strong>Email:</strong> info@electronova.co.ke</p>
+
 <p><strong>Location:</strong> Nairobi, Kenya</p>
+
+<p><strong>Facebook:</strong> Electrónova</p>
+
+<p><strong>Website:</strong> www.electronova.co.ke</p>
+
 </section>
 
 <footer>
-© 2026 Electrónova. All Rights Reserved.
+
+<h3>Electrónova</h3>
+
+<p>Engineering Innovation. Practical Solutions.</p>
+
+<br>
+
+<p>© 2026 Electrónova. All Rights Reserved.</p>
+
 </footer>
 
 </body>
 </html>
+```
