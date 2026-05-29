@@ -4,181 +4,255 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Electrónova | Engineering Innovation. Practical Solutions.</title>
 
+<link rel="icon" type="image/png" href="logo.png">
+
 <style>
+
+html{
+scroll-behavior:smooth;
+}
+
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
 }
 
 body{
-    background:#f5f7fa;
-    color:#333;
-    line-height:1.6;
+background:#f4f7fb;
+color:#333;
+line-height:1.6;
+}
+
+.topbar{
+background:#00a2ff;
+color:white;
+text-align:center;
+padding:8px;
+font-size:14px;
+font-weight:bold;
 }
 
 header{
-    background:#081c3a;
-    color:white;
-    padding:20px 8%;
-    position:sticky;
-    top:0;
-    z-index:1000;
+background:#081c3a;
+position:sticky;
+top:0;
+z-index:1000;
 }
 
 nav{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 8%;
 }
 
-.logo{
-    font-size:28px;
-    font-weight:bold;
+.logo-container{
+display:flex;
+align-items:center;
+gap:12px;
 }
 
-.logo span{
-    color:#00b4ff;
+.logo-container img{
+width:60px;
+height:60px;
+border-radius:8px;
+}
+
+.logo-text{
+color:white;
+font-size:26px;
+font-weight:bold;
 }
 
 nav ul{
-    list-style:none;
-    display:flex;
-    gap:20px;
+display:flex;
+list-style:none;
+gap:20px;
 }
 
-nav a{
-    color:white;
-    text-decoration:none;
-    font-weight:bold;
+nav ul li a{
+color:white;
+text-decoration:none;
+font-weight:bold;
 }
 
 .hero{
-    background:linear-gradient(rgba(8,28,58,0.85),rgba(8,28,58,0.85)),
-    url('https://images.unsplash.com/photo-1517048676732-d65bc937f952');
-    background-size:cover;
-    background-position:center;
-    color:white;
-    text-align:center;
-    padding:120px 20px;
+background:linear-gradient(rgba(8,28,58,0.9),rgba(8,28,58,0.9));
+color:white;
+text-align:center;
+padding:100px 20px;
+}
+
+.hero img{
+width:180px;
+margin-bottom:20px;
+border-radius:15px;
 }
 
 .hero h1{
-    font-size:3rem;
-    margin-bottom:15px;
+font-size:3rem;
+margin-bottom:15px;
 }
 
 .hero p{
-    max-width:800px;
-    margin:auto;
-    margin-bottom:30px;
+max-width:800px;
+margin:auto;
+margin-bottom:30px;
+font-size:18px;
 }
 
 .btn{
-    display:inline-block;
-    background:#00b4ff;
-    color:white;
-    padding:12px 24px;
-    border-radius:5px;
-    text-decoration:none;
-    margin:5px;
+display:inline-block;
+background:#00a2ff;
+color:white;
+padding:12px 25px;
+text-decoration:none;
+border-radius:5px;
+margin:5px;
+font-weight:bold;
 }
 
 section{
-    padding:70px 8%;
+padding:70px 8%;
 }
 
 .section-title{
-    text-align:center;
-    margin-bottom:40px;
-    color:#081c3a;
+text-align:center;
+margin-bottom:40px;
+color:#081c3a;
+font-size:32px;
 }
 
 .cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:25px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:25px;
 }
 
 .card{
-    background:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.1);
-    transition:0.3s;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 3px 12px rgba(0,0,0,0.1);
+transition:0.3s;
 }
 
 .card:hover{
-    transform:translateY(-5px);
+transform:translateY(-5px);
 }
 
 .projects{
-    background:#eef3f9;
+background:#eef4fb;
 }
 
 .about{
-    text-align:center;
-    max-width:900px;
-    margin:auto;
-}
-
-.why-us ul{
-    max-width:600px;
-    margin:auto;
-    list-style:none;
-}
-
-.why-us li{
-    background:white;
-    margin:10px 0;
-    padding:15px;
-    border-radius:8px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+max-width:900px;
+margin:auto;
+text-align:center;
+font-size:18px;
 }
 
 .contact{
-    text-align:center;
+text-align:center;
 }
 
-.contact p{
-    margin:10px 0;
+.contact a{
+text-decoration:none;
+color:#007bff;
+font-weight:bold;
 }
 
 footer{
-    background:#081c3a;
-    color:white;
-    text-align:center;
-    padding:25px;
+background:#081c3a;
+color:white;
+text-align:center;
+padding:25px;
+}
+
+/* Floating Buttons */
+
+.whatsapp{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#25D366;
+color:white;
+padding:15px 18px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+z-index:999;
+}
+
+.call{
+position:fixed;
+bottom:85px;
+right:20px;
+background:#007BFF;
+color:white;
+padding:15px 18px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+z-index:999;
+}
+
+.facebook{
+position:fixed;
+bottom:150px;
+right:20px;
+background:#1877F2;
+color:white;
+padding:15px 18px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+z-index:999;
 }
 
 @media(max-width:768px){
 
 nav{
-    flex-direction:column;
+flex-direction:column;
 }
 
 nav ul{
-    margin-top:15px;
-    flex-wrap:wrap;
-    justify-content:center;
+margin-top:15px;
+flex-wrap:wrap;
+justify-content:center;
 }
 
 .hero h1{
-    font-size:2rem;
+font-size:2rem;
 }
 
 }
+
 </style>
 </head>
 
 <body>
 
+<div class="topbar">
+📧 info@electronova.co.ke | 📞 +254 103 395 072
+</div>
+
 <header>
+
 <nav>
-<div class="logo">Electrón<span>ova</span></div>
+
+<div class="logo-container">
+<img src="logo.png" alt="Electrónova Logo">
+<div class="logo-text">Electrónova</div>
+</div>
 
 <ul>
 <li><a href="#home">Home</a></li>
@@ -187,53 +261,67 @@ nav ul{
 <li><a href="#about">About</a></li>
 <li><a href="#contact">Contact</a></li>
 </ul>
+
 </nav>
+
 </header>
 
 <section class="hero" id="home">
+
+<img src="logo.png" alt="Electrónova Logo">
+
 <h1>Engineering Innovation. Practical Solutions.</h1>
 
 <p>
-Transforming ideas into reliable engineering solutions through industrial automation,
-embedded systems, IoT, telecommunications, electrical engineering,
-and technical project development.
+Delivering practical engineering solutions in Industrial Automation,
+Embedded Systems, IoT, Telecommunications,
+Electrical Engineering and Technical Project Development.
 </p>
 
+<a href="#services" class="btn">Our Services</a>
+
 <a href="#contact" class="btn">Contact Us</a>
-<a href="#projects" class="btn">Our Projects</a>
+
 </section>
 
 <section id="services">
+
 <h2 class="section-title">Our Services</h2>
 
 <div class="cards">
 
 <div class="card">
 <h3>Industrial Automation</h3>
-<p>PLC programming, SCADA systems, process control and industrial maintenance solutions.</p>
+<p>PLC Programming, SCADA Systems, Process Control and Industrial Maintenance.</p>
 </div>
 
 <div class="card">
 <h3>Embedded Systems & IoT</h3>
-<p>Arduino, ESP32, remote monitoring systems and smart automation solutions.</p>
+<p>Arduino, ESP32, Smart Monitoring and Automation Solutions.</p>
 </div>
 
 <div class="card">
 <h3>Electrical Engineering</h3>
-<p>Electrical installations, power systems, control panels and technical consultancy.</p>
+<p>Electrical Installations, Power Systems and Technical Consultancy.</p>
 </div>
 
 <div class="card">
 <h3>Telecommunications</h3>
-<p>Wireless communication systems, RF engineering and network infrastructure.</p>
+<p>Wireless Communication Systems, RF Solutions and Networking.</p>
 </div>
 
 <div class="card">
 <h3>Project Development</h3>
-<p>Engineering prototypes, research support and product development services.</p>
+<p>Engineering Prototypes, Research Support and Product Development.</p>
+</div>
+
+<div class="card">
+<h3>EV Systems</h3>
+<p>Electric Vehicle Diagnostics, Maintenance and Electrical Systems.</p>
 </div>
 
 </div>
+
 </section>
 
 <section class="projects" id="projects">
@@ -242,37 +330,20 @@ and technical project development.
 
 <div class="cards">
 
-<div class="card">
-<h3>Carbon Capture IoT Monitoring System</h3>
-<p>Environmental monitoring with cloud connectivity and automated control.</p>
-</div>
+<div class="card">Carbon Capture IoT Monitoring System</div>
 
-<div class="card">
-<h3>Antenna Positioning System</h3>
-<p>Automated azimuth and elevation control for communication systems.</p>
-</div>
+<div class="card">Antenna Positioning System</div>
 
-<div class="card">
-<h3>Smart Drug Dispenser</h3>
-<p>Automated medication reminder and dispensing solution.</p>
-</div>
+<div class="card">Smart Drug Reminder & Dispenser</div>
 
-<div class="card">
-<h3>GSM Security System</h3>
-<p>Motion detection and SMS alert system for security monitoring.</p>
-</div>
+<div class="card">Motion Detection GSM Security System</div>
 
-<div class="card">
-<h3>Robotic Metal Detector</h3>
-<p>Remote-controlled robot with metal detection and obstacle avoidance.</p>
-</div>
+<div class="card">Digital Hand Washing Station</div>
 
-<div class="card">
-<h3>Automatic Egg Incubator</h3>
-<p>Temperature-controlled incubation system with automation features.</p>
-</div>
+<div class="card">Bluetooth Controlled Metal Detection Robot</div>
 
 </div>
+
 </section>
 
 <section id="about">
@@ -282,29 +353,15 @@ and technical project development.
 <div class="about">
 
 <p>
-Electrónova is a Kenyan engineering and technology company focused on
-industrial automation, embedded systems, IoT, telecommunications,
-electrical engineering and technical project development.
-We help businesses, institutions, homeowners, researchers and students
-transform innovative ideas into practical solutions.
+Electrónova is a Kenyan engineering and technology company specializing in
+Industrial Automation, Embedded Systems, IoT, Telecommunications,
+Electrical Engineering, Technical Consultancy and Product Development.
+
+We transform innovative ideas into practical engineering solutions for
+industries, institutions, businesses, researchers and homeowners.
 </p>
 
 </div>
-
-</section>
-
-<section class="why-us">
-
-<h2 class="section-title">Why Choose Us?</h2>
-
-<ul>
-<li>✓ Practical Engineering Solutions</li>
-<li>✓ Innovation-Driven Approach</li>
-<li>✓ Reliable Technical Support</li>
-<li>✓ Industry Experience</li>
-<li>✓ Quality-Focused Delivery</li>
-<li>✓ Affordable Technology Solutions</li>
-</ul>
 
 </section>
 
@@ -314,11 +371,17 @@ transform innovative ideas into practical solutions.
 
 <p><strong>Email:</strong> info@electronova.co.ke</p>
 
+<p><strong>Phone:</strong> +254 103 395 072</p>
+
 <p><strong>Location:</strong> Nairobi, Kenya</p>
 
-<p><strong>Facebook:</strong> Electrónova</p>
+<br>
 
-<p><strong>Website:</strong> www.electronova.co.ke</p>
+<p>
+<a href="https://www.facebook.com/profile.php?id=61590299106589" target="_blank">
+Visit Our Facebook Page
+</a>
+</p>
 
 </section>
 
@@ -333,6 +396,22 @@ transform innovative ideas into practical solutions.
 <p>© 2026 Electrónova. All Rights Reserved.</p>
 
 </footer>
+
+<!-- Floating Buttons -->
+
+<a href="https://wa.me/254103395072" class="whatsapp" target="_blank">
+💬 WhatsApp
+</a>
+
+<a href="tel:+254103395072" class="call">
+📞 Call
+</a>
+
+<a href="https://www.facebook.com/profile.php?id=61590299106589"
+class="facebook"
+target="_blank">
+f Facebook
+</a>
 
 </body>
 </html>
