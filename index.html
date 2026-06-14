@@ -10,229 +10,233 @@
 
 <style>
 
-html{
-scroll-behavior:smooth;
+html {
+  scroll-behavior: smooth;
 }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
-body{
-background:#f4f7fb;
-color:#333;
-line-height:1.6;
+body {
+  background: #f4f7fb;
+  color: #333;
+  line-height: 1.6;
 }
 
-.topbar{
-background:#00a2ff;
-color:white;
-text-align:center;
-padding:8px;
-font-size:14px;
-font-weight:bold;
+.topbar {
+  background: #00a2ff;
+  color: white;
+  text-align: center;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
-header{
-background:#081c3a;
-position:sticky;
-top:0;
-z-index:1000;
+header {
+  background: #081c3a;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-nav{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px 8%;
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 8%;
 }
 
-.logo-container{
-display:flex;
-align-items:center;
-gap:12px;
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.logo-container img{
-width:60px;
-height:60px;
-border-radius:8px;
+.logo-container img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
-.logo-text{
-color:white;
-font-size:26px;
-font-weight:bold;
+.logo-text {
+  color: white;
+  font-size: 26px;
+  font-weight: bold;
 }
 
-nav ul{
-display:flex;
-list-style:none;
-gap:20px;
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
 }
 
-nav ul li a{
-color:white;
-text-decoration:none;
-font-weight:bold;
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s ease;
 }
 
-.hero{
-background:linear-gradient(rgba(8,28,58,0.9),rgba(8,28,58,0.9));
-color:white;
-text-align:center;
-padding:100px 20px;
+nav ul li a:hover {
+  color: #00a2ff;
 }
 
-.hero img{
-width:180px;
-margin-bottom:20px;
-border-radius:15px;
+.hero {
+  background: linear-gradient(rgba(8, 28, 58, 0.9), rgba(8, 28, 58, 0.9));
+  color: white;
+  text-align: center;
+  padding: 100px 20px;
 }
 
-.hero h1{
-font-size:3rem;
-margin-bottom:15px;
+.hero img {
+  width: 180px;
+  margin-bottom: 20px;
+  border-radius: 15px;
 }
 
-.hero p{
-max-width:800px;
-margin:auto;
-margin-bottom:30px;
-font-size:18px;
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 15px;
 }
 
-.btn{
-display:inline-block;
-background:#00a2ff;
-color:white;
-padding:12px 25px;
-text-decoration:none;
-border-radius:5px;
-margin:5px;
-font-weight:bold;
+.hero p {
+  max-width: 800px;
+  margin: auto;
+  margin-bottom: 30px;
+  font-size: 18px;
 }
 
-section{
-padding:70px 8%;
+.btn {
+  display: inline-block;
+  background: #00a2ff;
+  color: white;
+  padding: 12px 25px;
+  text-decoration: none;
+  border-radius: 5px;
+  margin: 5px;
+  font-weight: bold;
+  transition: background 0.2s;
 }
 
-.section-title{
-text-align:center;
-margin-bottom:40px;
-color:#081c3a;
-font-size:32px;
+.btn:hover {
+  background: #0084d1;
 }
 
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:25px;
+section {
+  padding: 70px 8%;
+  /* Ensures sticky header doesn't cover section titles when clicking nav links */
+  scroll-margin-top: 80px; 
 }
 
-.card{
-background:white;
-padding:25px;
-border-radius:12px;
-box-shadow:0 3px 12px rgba(0,0,0,0.1);
-transition:0.3s;
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #081c3a;
+  font-size: 32px;
 }
 
-.card:hover{
-transform:translateY(-5px);
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
 }
 
-.projects{
-background:#eef4fb;
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.about{
-max-width:900px;
-margin:auto;
-text-align:center;
-font-size:18px;
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
-.contact{
-text-align:center;
+.projects {
+  background: #eef4fb;
 }
 
-.contact a{
-text-decoration:none;
-color:#007bff;
-font-weight:bold;
+.about {
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+  font-size: 18px;
 }
 
-footer{
-background:#081c3a;
-color:white;
-text-align:center;
-padding:25px;
+.contact {
+  text-align: center;
 }
 
-/* Floating Buttons */
-
-.whatsapp{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#25D366;
-color:white;
-padding:15px 18px;
-border-radius:50px;
-text-decoration:none;
-font-weight:bold;
-box-shadow:0 4px 10px rgba(0,0,0,0.3);
-z-index:999;
+.contact p {
+  margin-bottom: 10px;
 }
 
-.call{
-position:fixed;
-bottom:85px;
-right:20px;
-background:#007BFF;
-color:white;
-padding:15px 18px;
-border-radius:50px;
-text-decoration:none;
-font-weight:bold;
-box-shadow:0 4px 10px rgba(0,0,0,0.3);
-z-index:999;
+.contact a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
 }
 
-.facebook{
-position:fixed;
-bottom:150px;
-right:20px;
-background:#1877F2;
-color:white;
-padding:15px 18px;
-border-radius:50px;
-text-decoration:none;
-font-weight:bold;
-box-shadow:0 4px 10px rgba(0,0,0,0.3);
-z-index:999;
+footer {
+  background: #081c3a;
+  color: white;
+  text-align: center;
+  padding: 25px;
 }
+
+/* Optimized Floating Action Buttons */
+.fab {
+  position: fixed;
+  right: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 999;
+  transition: transform 0.2s;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+}
+
+.whatsapp { bottom: 20px; background: #25D366; }
+.call { bottom: 85px; background: #007BFF; }
+.facebook { bottom: 150px; background: #1877F2; }
 
 @media(max-width:768px){
+  nav {
+    flex-direction: column;
+    padding: 15px 2%;
+  }
 
-nav{
-flex-direction:column;
-}
+  nav ul {
+    margin-top: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
 
-nav ul{
-margin-top:15px;
-flex-wrap:wrap;
-justify-content:center;
-}
-
-.hero h1{
-font-size:2rem;
-}
-
+  .hero h1 {
+    font-size: 2rem;
+  }
+  
+  section {
+    padding: 50px 5%;
+  }
 }
 
 </style>
@@ -245,176 +249,129 @@ font-size:2rem;
 </div>
 
 <header>
-
-<nav>
-
-<div class="logo-container">
-<img src="logo.png" alt="Electrónova Logo">
-<div class="logo-text">Electrónova</div>
-</div>
-
-<ul>
-<li><a href="#home">Home</a></li>
-<li><a href="#services">Services</a></li>
-<li><a href="#projects">Projects</a></li>
-<li><a href="#about">About</a></li>
-<li><a href="#contact">Contact</a></li>
-</ul>
-
-</nav>
-
+  <nav>
+    <div class="logo-container">
+      <img src="logo.png" alt="Electrónova Logo">
+      <div class="logo-text">Electrónova</div>
+    </div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 </header>
 
 <section class="hero" id="home">
-
-<img src="logo.png" alt="Electrónova Logo">
-
-<h1>Engineering Innovation. Practical Solutions.</h1>
-
-<p>
-Delivering practical engineering solutions in Embedded Systems & IoT,
-Electrical Engineering and Technical Project Development.
-</p>
-
-<a href="#services" class="btn">Our Services</a>
-<a href="#contact" class="btn">Contact Us</a>
-
+  <img src="logo.png" alt="Electrónova Logo">
+  <h1>Engineering Innovation. Practical Solutions.</h1>
+  <p>
+    Delivering practical engineering solutions in Embedded Systems & IoT,
+    Electrical Engineering and Technical Project Development.
+  </p>
+  <a href="#services" class="btn">Our Services</a>
+  <a href="#contact" class="btn">Contact Us</a>
 </section>
 
 <section id="services">
-
-<h2 class="section-title">Our Services</h2>
-
-<div class="cards">
-
-<div class="card">
-<h3>Embedded Systems & IoT</h3>
-<p>
-Arduino development, ESP32 solutions, sensor integration,
-smart monitoring systems, automation and IoT-based solutions.
-</p>
-</div>
-
-<div class="card">
-<h3>Electrical Engineering</h3>
-<p>
-Electrical installations, troubleshooting, maintenance,
-control panels, testing and technical consultancy services.
-</p>
-</div>
-
-<div class="card">
-<h3>Technical Project Development</h3>
-<p>
-Engineering prototypes, research support, product development,
-student projects, innovation support and technical documentation.
-</p>
-</div>
-
-</div>
-
+  <h2 class="section-title">Our Services</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Embedded Systems & IoT</h3>
+      <p>
+        Arduino development, ESP32 solutions, sensor integration,
+        smart monitoring systems, automation and IoT-based solutions.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Electrical Engineering</h3>
+      <p>
+        Electrical installations, troubleshooting, maintenance,
+        control panels, testing and technical consultancy services.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Technical Project Development</h3>
+      <p>
+        Engineering prototypes, research support, product development,
+        student projects, innovation support and technical documentation.
+      </p>
+    </div>
+  </div>
 </section>
 
 <section class="projects" id="projects">
-
-<h2 class="section-title">Featured Projects</h2>
-
-<div class="cards">
-
-<div class="card">
-<h3>IoT Monitoring Systems</h3>
-<p>Remote monitoring and control systems using Wi-Fi, GSM and cloud platforms.</p>
-</div>
-
-<div class="card">
-<h3>Embedded Solutions</h3>
-<p>Custom Arduino and ESP32 based automation and control projects.</p>
-</div>
-
-<div class="card">
-<h3>Research & Innovation</h3>
-<p>Engineering project design, prototyping, testing and development.</p>
-</div>
-
-</div>
-
+  <h2 class="section-title">Featured Projects</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>IoT Monitoring Systems</h3>
+      <p>Remote monitoring and control systems using Wi-Fi, GSM and cloud platforms.</p>
+    </div>
+    <div class="card">
+      <h3>Embedded Solutions</h3>
+      <p>Custom Arduino and ESP32 based automation and control projects.</p>
+    </div>
+    <div class="card">
+      <h3>Research & Innovation</h3>
+      <p>Engineering project design, prototyping, testing and development.</p>
+    </div>
+  </div>
 </section>
 
 <section id="about">
-
-<h2 class="section-title">About Electrónova</h2>
-
-<div class="about">
-
-<p>
-Electrónova is an engineering solutions company focused on Embedded Systems & IoT,
-Electrical Engineering and Technical Project Development.
-</p>
-
-<br>
-
-<p>
-Our expertise includes microcontroller-based systems, sensor integration,
-IoT monitoring solutions, electrical installations, troubleshooting,
-maintenance and technical consultancy.
-</p>
-
-<br>
-
-<p>
-We also support prototype development, research projects,
-product design and engineering innovation for students,
-businesses, institutions and individuals.
-</p>
-
-</div>
-
+  <h2 class="section-title">About Electrónova</h2>
+  <div class="about">
+    <p>
+      Electrónova is an engineering solutions company focused on Embedded Systems & IoT,
+      Electrical Engineering and Technical Project Development.
+    </p>
+    <br>
+    <p>
+      Our expertise includes microcontroller-based systems, sensor integration,
+      IoT monitoring solutions, electrical installations, troubleshooting,
+      maintenance and technical consultancy.
+    </p>
+    <br>
+    <p>
+      We also support prototype development, research projects,
+      product design and engineering innovation for students,
+      businesses, institutions and individuals.
+    </p>
+  </div>
 </section>
 
 <section class="contact" id="contact">
-
-<h2 class="section-title">Contact Us</h2>
-
-<p><strong>Email:</strong> info@electronova.co.ke</p>
-
-<p><strong>Phone:</strong> +254 103 395 072</p>
-
-<p><strong>Location:</strong> Nairobi, Kenya</p>
-
-<br>
-
-<p>
-<a href="https://www.facebook.com/profile.php?id=61590299106589" target="_blank">
-Visit Our Facebook Page
-</a>
-</p>
-
+  <h2 class="section-title">Contact Us</h2>
+  <p><strong>Email:</strong> info@electronova.co.ke</p>
+  <p><strong>Phone:</strong> +254 103 395 072</p>
+  <p><strong>Location:</strong> Nairobi, Kenya</p>
+  <br>
+  <p>
+    <a href="https://www.facebook.com/profile.php?id=61590299106589" target="_blank" rel="noopener">
+      Visit Our Facebook Page
+    </a>
+  </p>
 </section>
 
 <footer>
-
-<h3>Electrónova</h3>
-
-<p>Engineering Innovation. Practical Solutions.</p>
-
-<br>
-
-<p>© 2026 Electrónova. All Rights Reserved.</p>
-
+  <h3>Electrónova</h3>
+  <p>Engineering Innovation. Practical Solutions.</p>
+  <br>
+  <p>© 2026 Electrónova. All Rights Reserved.</p>
 </footer>
 
-<a href="https://wa.me/254103395072" class="whatsapp" target="_blank">
-💬 WhatsApp
+<a href="https://wa.me/254103395072" class="fab whatsapp" target="_blank" rel="noopener" title="Chat on WhatsApp">
+  💬
 </a>
 
-<a href="tel:+254103395072" class="call">
-📞 Call
+<a href="tel:+254103395072" class="fab call" title="Call Us">
+  📞
 </a>
 
-<a href="https://www.facebook.com/profile.php?id=61590299106589"
-class="facebook"
-target="_blank">
-📘 Facebook
+<a href="https://www.facebook.com/profile.php?id=61590299106589" class="fab facebook" target="_blank" rel="noopener" title="Visit Facebook">
+  📘
 </a>
 
 </body>
