@@ -30,10 +30,16 @@
 <header>
   <div>
     <h1>Electrónova Administrative Control Terminal</h1>
-    <p style="color:#666; margin-top: 5px;">Manage incoming engineering requests, adjust processing workflows, and verify accounts parameters.</p>
+    <p style="color:#666; margin-top: 5px;">Manage incoming engineering requests, inspect custom blueprints, and update progress configurations.</p>
   </div>
 </header>
 
+<h2 style="color: #081c3a; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">💡 Incoming Student Project Blueprints</h2>
+<div id="blueprintQueueContainer" style="margin-bottom: 5px; max-height: 400px; overflow-y: auto; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ccc;">
+  <p style="text-align: center; color: #777; padding: 20px;">Loading student concept blueprints...</p>
+</div>
+
+<h2 style="color: #081c3a; margin-top: 40px; margin-bottom: 15px; border-bottom: 2px solid #00a2ff; padding-bottom: 5px;">🛠️ Active Production Tracking Pipeline</h2>
 <div id="adminQueueContainer">
   <p style="text-align: center; color: #777; padding: 40px;">Syncing with Electrónova cloud datastore node parameters...</p>
 </div>
@@ -54,7 +60,9 @@ const db = firebase.firestore();
 
 let projectRequestsDB = [];
 
-function listenToLiveDatabase() {
+// Initialize real-time tracking streams across both distinct cloud nodes
+function initializeAdminTerminalStreams() {
+  // Stream 1: Active Production Pipeline
   db.collection("requests").onSnapshot((snapshot) => {
     projectRequestsDB = [];
     snapshot.forEach((doc) => {
@@ -62,8 +70,34 @@ function listenToLiveDatabase() {
     });
     renderAdminDashboard();
   });
+
+  // Stream 2: Live Idea Blueprints
+  db.collection("blueprints").orderBy("submittedAt", "desc").onSnapshot((snapshot) => {
+    const blueprintContainer = document.getElementById("blueprintQueueContainer");
+    blueprintContainer.innerHTML = "";
+
+    if (snapshot.empty) {
+      blueprintContainer.innerHTML = `<p style="text-align: center; color: #777; padding: 15px;">No custom project blueprints submitted yet.</p>`;
+      return;
+    }
+
+    snapshot.forEach((doc) => {
+      const idea = doc.data();
+      const itemCard = document.createElement("div");
+      itemCard.style.cssText = "border-left: 4px solid #28a745; padding: 12px; margin-bottom: 10px; background: #f9f9f9; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);";
+      itemCard.innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; color:#666;">
+          <span>👤 <strong>${idea.studentName}</strong></span>
+          <span>📅 ${idea.submittedAt}</span>
+        </div>
+        <h4 style="color:#081c3a; margin-bottom:6px;">💡 Project Title: ${idea.projectTitle}</h4>
+        <p style="font-size:14px; background:#fff; padding:10px; border:1px solid #eee; border-radius:4px; white-space:pre-wrap; color:#444;">${idea.blueprintDetails}</p>
+      `;
+      blueprintContainer.appendChild(itemCard);
+    });
+  });
 }
-window.onload = listenToLiveDatabase;
+window.onload = initializeAdminTerminalStreams;
 
 function renderAdminDashboard() {
   const container = document.getElementById("adminQueueContainer");
@@ -151,91 +185,54 @@ function commitChanges(index) {
     isDelivered: deliveryConfirmed
   };
 
+  // 1. TRIGGER WHATSAPP NOTIFICATION IMMEDIATELY ON TAP (Bypasses Browser Pop-up Blockers)
+  if (project.feedbackPref === "WhatsApp") {
+    // Aggressive phone formatting: strip everything except raw digits
+    let cleanPhone = project.contactInfo.replace(/\D/g, ''); 
+    
+    // Convert Kenyan local formats (07... or 01...) to full country code 254
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = '254' + cleanPhone.substring(1);
+    } else if (cleanPhone.startsWith('7') || cleanPhone.startsWith('1')) {
+      cleanPhone = '254' + cleanPhone;
+    }
+
+    let paymentStatus = paymentConfirmed ? "✅ Confirmed & Processed" : "⏳ Pending Verification";
+    let deliveryStatus = deliveryConfirmed ? "📦 Handed over/Dispatched" : "🛠️ Active in Lab";
+
+    const message = `Hello *${project.studentName}*,\n\n` +
+                    `This is an official update from *Electrónova* regarding your project ID: *${project.id}* (*${project.projectTitle}*).\n\n` +
+                    `▫️ *Workflow Stage:* ${selectedStage}\n` +
+                    `▫️ *Payment Status:* ${paymentStatus}\n` +
+                    `▫️ *Delivery Status:* ${deliveryStatus}\n\n` +
+                    `Track live structural changes or schematic updates on our terminal at electronova.co.ke.\n\n` +
+                    `Thank you for engineering with us!\n` +
+                    `*Electrónova Technical Team*`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedMessage}`;
+    
+    // Execute tab handoff instantly
+    window.open(whatsappUrl, '_blank');
+  }
+
+  // 2. RUN FIREBASE CLOUD DATABASE WRITE OPERATION IN THE BACKGROUND
   if (fileInput.files.length > 0) {
     const file = fileInput.files[0];
     const reader = new FileReader();
     reader.onloadend = function() {
       updateObject.progressImageUrl = reader.result;
       db.collection("requests").doc(project.id).update(updateObject).then(() => {
-        alert("Pipeline variables updated with hardware images for: " + project.id);
-      });
+        console.log("Database write completed with Image payload for document ID: " + project.id);
+      }).catch(err => alert("Firestore update failed: " + err));
     };
     reader.readAsDataURL(file);
   } else {
     db.collection("requests").doc(project.id).update(updateObject).then(() => {
-      alert("Pipeline configuration changes applied successfully for: " + project.id);
-    });
+      console.log("Database write completed successfully for document ID: " + project.id);
+    }).catch(err => alert("Firestore update failed: " + err));
   }
 }
 </script>
 </body>
 </html>
-function commitChanges(index) {
-  const project = projectRequestsDB[index];
-  const selectedStage = document.getElementById(`stageSelect-${index}`).value;
-  const paymentConfirmed = document.getElementById(`payCheck-${index}`).checked;
-  const deliveryConfirmed = document.getElementById(`delivCheck-${index}`).checked;
-  const fileInput = document.getElementById(`fileInput-${index}`);
-
-  const updateObject = {
-    currentStage: selectedStage,
-    isPaid: paymentConfirmed,
-    isDelivered: deliveryConfirmed
-  };
-
-  // Inline helper function to construct and launch the WhatsApp dispatch link
-  function sendWhatsAppNotification() {
-    // Ensure formatting handles leading zeroes or plus signs correctly for international routing (+254)
-    let phone = project.contactInfo.replace(/\s+/g, '');
-    if (phone.startsWith('0')) {
-      phone = '254' + phone.substring(1);
-    } else if (phone.startsWith('+')) {
-      phone = phone.substring(1);
-    }
-
-    // Build out a clean status summary string representation
-    let paymentStatus = paymentConfirmed ? "✅ Confirmed & Processed" : "⏳ Pending Verification";
-    let deliveryStatus = deliveryConfirmed ? "📦 Handed over/Dispatched" : "🛠️ Active in Lab";
-
-    // Draft a professional engineering status brief
-    const message = `Hello *${project.studentName}*,\n\n` +
-                    `This is an official automated update from *Electrónova* regarding your requisition ID: *${project.id}* (*${project.projectTitle}*).\n\n` +
-                    `▫️ *Current Workflow Stage:* ${selectedStage}\n` +
-                    `▫️ *Payment Status:* ${paymentStatus}\n` +
-                    `▫️ *Delivery Status:* ${deliveryStatus}\n\n` +
-                    `You can track your live hardware updates and schematic progress previews anytime directly on our portal at electronova.co.ke.\n\n` +
-                    `Thank you for engineering with us!\n` +
-                    `*Electrónova Technical Lab Team*`;
-
-    // Encode text strings safely into URL parameters format
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-
-    // Launch connection node wrapper out into a new system browser tab
-    window.open(whatsappUrl, '_blank');
-  }
-
-  // Execution flow loop for Base64 configuration or standard processing strings
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onloadend = function() {
-      updateObject.progressImageUrl = reader.result;
-      db.collection("requests").doc(project.id).update(updateObject).then(() => {
-        alert("Pipeline variables updated with hardware images for: " + project.id);
-        // Fire notification instantly if contact channel matches criteria preference parameters
-        if (project.feedbackPref === "WhatsApp") {
-          sendWhatsAppNotification();
-        }
-      });
-    };
-    reader.readAsDataURL(file);
-  } else {
-    db.collection("requests").doc(project.id).update(updateObject).then(() => {
-      alert("Pipeline configuration changes applied successfully for: " + project.id);
-      if (project.feedbackPref === "WhatsApp") {
-        sendWhatsAppNotification();
-      }
-    });
-  }
-}
