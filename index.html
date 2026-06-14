@@ -243,8 +243,20 @@
 
     <div id="submit-tab" class="portal-content">
       <form id="submitIdeaForm" oninput="validateIdeaForm()">
-        <div class="form-row"><div class="form-group"><label>Student Name *</label><input type="text" id="ideaName" placeholder="Your Name" required></div><div class="form-group"><label>Project Title *</label><input type="text" id="ideaTitle" placeholder="Proposed Project Title" required></div></div>
-        <div class="form-group"><label>Comprehensive Idea Blueprint Details *</label><textarea id="ideaText" rows="6" placeholder="Describe the hardware requirements..." required></textarea></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Student Name *</label>
+            <input type="text" id="ideaName" placeholder="Your Name" required>
+          </div>
+          <div class="form-group">
+            <label>Project Title *</label>
+            <input type="text" id="ideaTitle" placeholder="Proposed Project Title" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Comprehensive Idea Blueprint Details *</label>
+          <textarea id="ideaText" rows="6" placeholder="Describe the hardware requirements..." required></textarea>
+        </div>
         <button type="submit" id="submitIdeaBtn" class="btn btn-submit" disabled>Submit Project Idea Blueprint</button>
       </form>
     </div>
@@ -378,6 +390,43 @@ document.getElementById("requestForm").addEventListener("submit", function(e) {
     document.getElementById("requestForm").reset();
     initializeInitializationParameters();
   }).catch(err => alert("Error writing data: " + err));
+});
+
+// IDEA BLUEPRINT SUBMISSION EVENT LISTENER TO FIRESTORE
+document.getElementById("submitIdeaForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  
+  const now = new Date();
+  const timestampStr = now.getFullYear() + "-" + 
+                       String(now.getMonth() + 1).padStart(2, '0') + "-" + 
+                       String(now.getDate()).padStart(2, '0') + " " + 
+                       String(now.getHours()).padStart(2, '0') + ":" + 
+                       String(now.getMinutes()).padStart(2, '0');
+
+  const blueprintData = {
+    studentName: document.getElementById("ideaName").value.trim(),
+    projectTitle: document.getElementById("ideaTitle").value.trim(),
+    blueprintDetails: document.getElementById("ideaText").value.trim(),
+    submittedAt: timestampStr,
+    status: "Under Review"
+  };
+
+  const submitBtn = document.getElementById("submitIdeaBtn");
+  submitBtn.innerText = "Transmitting Blueprint...";
+  submitBtn.disabled = true;
+
+  db.collection("blueprints").add(blueprintData)
+    .then(() => {
+      alert("Success! Your engineering blueprint for '" + blueprintData.projectTitle + "' has been submitted to the lab team for evaluation.");
+      document.getElementById("submitIdeaForm").reset();
+      submitBtn.innerText = "Submit Project Idea Blueprint";
+    })
+    .catch((err) => {
+      console.error("Error logging blueprint: ", err);
+      alert("Error transmitting data to cloud node: " + err.message);
+      submitBtn.innerText = "Submit Project Idea Blueprint";
+      submitBtn.disabled = false;
+    });
 });
 
 function trackProject() {
