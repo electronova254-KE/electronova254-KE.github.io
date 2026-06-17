@@ -40,9 +40,7 @@
   .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
   .auto-input { background: #eef4fb; font-weight: bold; color: #555; }
   .btn-submit { background: #28a745; color: white; width: 100%; padding: 14px; font-size: 18px; }
-  .btn-submit:hover { background: #218838; }
   
-  /* ADVANCED PROGRESS TIMELINE INDICATOR */
   .timeline-bar-wrapper { width: 100%; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e1e4e8; margin-bottom: 25px; }
   .timeline-status-text { text-align: center; font-size: 18px; font-weight: bold; color: #00a2ff; margin-bottom: 10px; }
   .progress-outer { width: 100%; height: 12px; background: #e1e4e8; border-radius: 10px; overflow: hidden; }
@@ -52,30 +50,29 @@
   @media(min-width: 768px) { .status-layout-grid { grid-template-columns: 1.2fr 0.8fr; } }
   .status-result-card { background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #e1e4e8; }
   
-  /* Star Rating Styles */
   .star-rating { display: flex; gap: 5px; margin-top: 10px; font-size: 30px; cursor: pointer; color: #ccc; }
   .star-rating span:hover, .star-rating span.selected { color: #ffca28; }
-
   .interactive-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-top: 15px; }
-  .about { max-width: 900px; margin: auto; text-align: center; font-size: 18px; }
-  .contact { text-align: center; }
-  .contact a { text-decoration: none; color: #007bff; font-weight: bold; }
+  
+  /* Financial Statement Styling */
+  .ledger-box { background: #eef4fb; border-radius: 8px; padding: 15px; margin: 15px 0; border: 1px solid #b8daff; }
+  .ledger-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 15px; }
+  .ledger-row.total { font-weight: bold; font-size: 17px; border-top: 1px solid #b8daff; padding-top: 6px; margin-top: 6px; color: #081c3a; }
+  
   footer { background: #081c3a; color: white; text-align: center; padding: 25px; }
   .fab { position: fixed; right: 20px; width: 55px; height: 55px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999; }
   .whatsapp { bottom: 20px; background: #25D366; }
   .call { bottom: 85px; background: #007BFF; }
-  @media(max-width:768px){ nav { flex-direction: column; } nav ul { margin-top: 15px; flex-wrap: wrap; justify-content: center; } .hero h1 { font-size: 2rem; } .portal-tabs { flex-direction: column; } }
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
 
-<div class="topbar">
-📧 info@electronova.co.ke | 📞 +254 103 395 072
-</div>
+<div class="topbar">📧 info@electronova.co.ke | 📞 +254 103 395 072</div>
 
 <header>
   <nav>
@@ -87,32 +84,14 @@
       <li><a href="#home">Home</a></li>
       <li><a href="#services">Services</a></li>
       <li><a href="#student-portal">Student Portal</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
 </header>
 
 <section class="hero" id="home">
-  <img src="logo.png" alt="Electrónova Logo">
   <h1>Engineering Innovation. Practical Solutions.</h1>
   <p>Delivering practical engineering solutions in Embedded Systems & IoT, and Technical Student Project Development.</p>
   <a href="#student-portal" class="btn">Student Portal</a>
-  <a href="#contact" class="btn">Contact Us</a>
-</section>
-
-<section id="services">
-  <h2 class="section-title">Our Services</h2>
-  <div class="cards">
-    <div class="card">
-      <h3>1. Embedded Systems & IoT</h3>
-      <p>Custom Arduino and ESP32 systems, industrial automation, remote monitoring networks, sensor integrations, and advanced cloud connectivity solutions.</p>
-    </div>
-    <div class="card">
-      <h3>2. Engineering Student Projects</h3>
-      <p>Comprehensive end-to-end support for undergraduate and diploma engineering projects. From structural schematics and hardware fabrication to complete testing modules.</p>
-    </div>
-  </div>
 </section>
 
 <section id="student-portal" style="background:#eef4fb;">
@@ -121,93 +100,47 @@
     <div class="portal-tabs">
       <button class="tab-btn active" onclick="openTab('request-tab')">📋 Request New Project</button>
       <button class="tab-btn" onclick="openTab('status-tab')">🔍 Check Project Status</button>
-      <button class="tab-btn" onclick="openTab('submit-tab')">📤 Submit Your Project Idea</button>
-      <button class="tab-btn" onclick="openTab('consult-tab')">💬 Project Consultation</button>
     </div>
 
     <div id="request-tab" class="portal-content active">
       <form id="requestForm" oninput="validateRequestForm()">
         <div class="form-row">
-          <div class="form-group">
-            <label>Requisition ID (Auto Generated)</label>
-            <input type="text" id="reqId" class="auto-input" readonly>
-          </div>
-          <div class="form-group">
-            <label>Date & Time of Request (Auto Local)</label>
-            <input type="datetime-local" id="reqDateTime" class="auto-input" readonly>
-          </div>
+          <div class="form-group"><label>Requisition ID (Auto Generated)</label><input type="text" id="reqId" class="auto-input" readonly></div>
+          <div class="form-group"><label>Date & Time of Request (Auto Local)</label><input type="datetime-local" id="reqDateTime" class="auto-input" readonly></div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label>Student Name *</label>
-            <input type="text" id="reqName" placeholder="Enter Full Name" required>
-          </div>
-          <div class="form-group">
-            <label>Admission / Registration Number *</label>
-            <input type="text" id="reqAdmin" placeholder="e.g. RTI/EE/23/00497" required>
-          </div>
+          <div class="form-group"><label>Student Name *</label><input type="text" id="reqName" placeholder="Enter Full Name" required></div>
+          <div class="form-group"><label>Admission / Registration Number *</label><input type="text" id="reqAdmin" placeholder="e.g. RTI/EE/23/00497" required></div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label>University / College *</label>
-            <input type="text" id="reqUni" placeholder="e.g. RVTI, JKUAT, UoN" required>
-          </div>
-          <div class="form-group">
-            <label>Course Name *</label>
-            <input type="text" id="reqCourse" placeholder="e.g. Diploma in Electrical Engineering" required>
-          </div>
+          <div class="form-group"><label>University / College *</label><input type="text" id="reqUni" placeholder="e.g. RVTI" required></div>
+          <div class="form-group"><label>Course Name *</label><input type="text" id="reqCourse" placeholder="e.g. Electrical Engineering" required></div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>Current Location (County) *</label>
-            <select id="reqLocation" required>
-              <option value="">-- Select County --</option>
-            </select>
+            <select id="reqLocation" required><option value="">-- Select County --</option></select>
           </div>
           <div class="form-group">
             <label>Project Category *</label>
-            <select id="reqCategory" onchange="toggleSpec(this.value)" required>
-              <option value="">-- Select Category --</option>
-              <option value="Electronics and Telecommunications">Electronics and Telecommunications</option>
-              <option value="Power Electronics">Power Electronics</option>
+            <select id="reqCategory" required>
               <option value="Embedded Electronics">Embedded Electronics</option>
+              <option value="Power Electronics">Power Electronics</option>
               <option value="Mechatronics">Mechatronics</option>
-              <option value="Automation and Control">Automation and Control</option>
-              <option value="Other">Any other (Specify below)</option>
             </select>
           </div>
         </div>
-        <div class="form-group" id="specifyGroup" style="display:none;">
-          <label>Please Specify Your Project Category *</label>
-          <input type="text" id="reqSpecify" placeholder="Please specify">
-        </div>
         <div class="form-row">
-          <div class="form-group">
-            <label>Proposed Project Title *</label>
-            <input type="text" id="reqTitle" placeholder="What is the concept name?" required>
-          </div>
-          <div class="form-group">
-            <label>Minimum Budget (KES) *</label>
-            <input type="number" id="reqMinCost" placeholder="Min Amount" required>
-          </div>
-          <div class="form-group">
-            <label>Maximum Budget (KES) *</label>
-            <input type="number" id="reqMaxCost" placeholder="Max Amount" required>
-          </div>
+          <div class="form-group"><label>Proposed Project Title *</label><input type="text" id="reqTitle" placeholder="Concept Name" required></div>
+          <div class="form-group"><label>Minimum Budget (KES) *</label><input type="number" id="reqMinCost" required></div>
+          <div class="form-group"><label>Maximum Budget (KES) *</label><input type="number" id="reqMaxCost" required></div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>Feedback Preference *</label>
-            <select id="reqFeedbackPref" onchange="updateFeedbackPlaceholder(this.value)" required>
-              <option value="">-- Choose Channel --</option>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="Meta Messenger">Meta Messenger</option>
-            </select>
+            <select id="reqFeedbackPref" required><option value="WhatsApp">WhatsApp</option></select>
           </div>
-          <div class="form-group">
-            <label id="feedbackContactLabel">Contact Info *</label>
-            <input type="text" id="reqFeedbackContact" placeholder="Enter number or handle" required>
-          </div>
+          <div class="form-group"><label>WhatsApp Contact Info *</label><input type="text" id="reqFeedbackContact" placeholder="e.g. 07XXXXXXXX" required></div>
         </div>
         <button type="submit" id="submitRequestBtn" class="btn btn-submit" disabled>Submit Request</button>
       </form>
@@ -225,94 +158,80 @@
       <div id="statusResult" style="display:none;">
         <div class="timeline-bar-wrapper">
           <div class="timeline-status-text" id="timelineStatusText">Current Stage: Request received(pending review)</div>
-          <div class="progress-outer">
-            <div class="progress-inner" id="progressInnerFill"></div>
-          </div>
+          <div class="progress-outer"><div class="progress-inner" id="progressInnerFill"></div></div>
         </div>
 
         <div class="status-layout-grid">
           <div class="status-result-card">
             <h3 id="resTitle" style="color:#081c3a; margin-bottom: 15px; font-size:22px; border-bottom:2px solid #00a2ff; padding-bottom:5px;"></h3>
+            
+            <div class="ledger-box">
+              <div class="ledger-row"><span>Total Reviewed Cost:</span><span id="ledTotal" style="font-weight:bold;">Pending Review</span></div>
+              <div class="ledger-row"><span>Amount Paid:</span><span id="ledPaid" style="color:#28a745; font-weight:bold;">KES 0</span></div>
+              <div class="ledger-row total"><span>Remaining Balance:</span><span id="ledBalance">Pending Review</span></div>
+              <p style="font-size:11px; color:#666; margin-top:5px; text-align:right;">* Balances are cleared upon delivery</p>
+            </div>
+
+            <div id="receiptDownloadArea" style="display:none; margin-bottom:15px; background:#e2f0d9; border:1px solid #385723; padding:10px; border-radius:6px; text-align:center;">
+              <p style="font-size:13px; font-weight:bold; color:#385723; margin-bottom:5px;">📄 Official Payment Receipt Ready!</p>
+              <button class="btn" style="background:#385723; font-size:13px; padding:6px 12px; margin:0;" onclick="generateReceiptPDF()">Download Payment Receipt</button>
+            </div>
+
+            <div id="courierTrackingBox" style="display:none; background:#d1ecf1; border-left:5px solid #17a2b8; padding:12px; border-radius:4px; margin-bottom:15px;">
+              <h4 style="color:#0c5460; font-size:14px; margin-bottom:4px;">🚚 Dispatch Courier Information</h4>
+              <p style="font-size:13px; color:#222;"><strong id="courierLabel">Rider/Agent:</strong> <span id="courierDetailsField">Loading details...</span></p>
+            </div>
+
             <p style="margin-bottom:8px;"><strong>Student Name:</strong> <span id="resName" style="color:#444;"></span></p>
             <p style="margin-bottom:8px;"><strong>Date Requested:</strong> <span id="resDate" style="color:#444;"></span></p>
-            <p style="margin-bottom:8px;"><strong>Category:</strong> <span id="resCategory" style="color:#444;"></span></p>
-            <p style="margin-bottom:8px;"><strong>Estimated Budget Range:</strong> KES <span id="resCost" style="color:#444;"></span></p>
-            <p style="margin-bottom:8px; font-size: 18px; color: #28a745;"><strong>Official Reviewed Cost:</strong> <span id="resFinalCost" style="font-weight:bold;">Pending Lab Review</span></p>
 
             <div id="studentActionBox" class="interactive-box" style="display:none;"></div>
           </div>
 
           <div style="display:flex; flex-direction:column; gap:15px; background:#fff; border:1px solid #e1e4e8; border-radius:12px; padding:15px;">
             <p style="font-weight:bold; color:#081c3a; text-align:center;">Project Output Media</p>
-            
             <div style="width:100%; min-height:160px; display:flex; align-items:center; justify-content:center; background:#f8f9fa; border-radius:8px; overflow:hidden;">
               <img id="resImg" src="" alt="Hardware View" style="max-width:100%; max-height:220px; object-fit:contain; display:none;">
               <p id="noImgText" style="color:#aaa; text-align:center; padding:10px; font-size:13px;">No tracking photos uploaded for this segment.</p>
             </div>
-
             <div id="reportDownloadNode" style="display:none; text-align:center; border-top:1px solid #eee; padding-top:10px;">
-              <p style="font-size:13px; font-weight:bold; color:#081c3a; margin-bottom:5px;">📋 Final Engineering Documentation Report</p>
-              <a id="downloadReportBtn" href="#" download="Project_Report.pdf" class="btn" style="background:#17a2b8; font-size:13px; padding:8px 15px; margin:0;">Download Report (PDF/Docx)</a>
+              <a id="downloadReportBtn" href="#" download class="btn" style="background:#17a2b8; font-size:13px; padding:8px 15px; margin:0;">Download Technical Documentation</a>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div id="submit-tab" class="portal-content">
-      <form id="submitIdeaForm" oninput="validateIdeaForm()">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Student Name *</label>
-            <input type="text" id="ideaName" placeholder="Your Name" required>
-          </div>
-          <div class="form-group">
-            <label>Project Title *</label>
-            <input type="text" id="ideaTitle" placeholder="Proposed Project Title" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Comprehensive Idea Blueprint Details *</label>
-          <textarea id="ideaText" rows="6" placeholder="Describe the hardware requirements..." required></textarea>
-        </div>
-        <button type="submit" id="submitIdeaBtn" class="btn btn-submit" disabled>Submit Project Idea Blueprint</button>
-      </form>
-    </div>
-
-    <div id="consult-tab" class="portal-content">
-      <form id="consultForm" oninput="validateConsultForm()">
-        <div class="form-row"><div class="form-group"><label>Student Name *</label><input type="text" id="conName" placeholder="Your Name" required></div><div class="form-group"><label>Project Title *</label><input type="text" id="conTitle" placeholder="Project Title" required></div></div>
-        <div class="form-row">
-          <div class="form-group"><label>Project Category *</label><select id="conCategory" required><option value="">-- Choose --</option><option value="Electronics">Electronics</option><option value="Power Electronics">Power Electronics</option><option value="Embedded Systems">Embedded Systems & IoT</option></select></div>
-          <div class="form-group"><label>Preferred Communication Channel *</label><select id="conMode" required><option value="">-- Select --</option><option value="WhatsApp">WhatsApp</option><option value="Meta Messenger">Meta Messenger</option></select></div>
-        </div>
-        <div class="form-group"><label>Describe your project (Max 3,000 characters) *</label><textarea id="conDesc" rows="6" maxlength="3000" required></textarea><small style="float:right; color:#777;"><span id="charCount">3000</span> left</small></div>
-        <button type="submit" id="submitConsultBtn" class="btn btn-submit" style="margin-top:10px;" disabled>Submit Consultation Request</button>
-      </form>
-    </div>
   </div>
 </section>
 
-<section id="about">
-  <h2 class="section-title">About Electrónova</h2>
-  <div class="about">
-    <p>Electrónova is an engineering solutions company focused on Embedded Systems & IoT, Electrical Engineering and Technical Project Development.</p>
+<div id="receiptTemplate" style="display:none; padding:40px; background:#fff; font-family:Arial, sans-serif; color:#333; max-width:600px;">
+  <div style="text-align:center; margin-bottom:20px; border-bottom:2px solid #081c3a; padding-bottom:15px;">
+    <h2 style="color:#081c3a; text-transform:uppercase; letter-spacing:1px;">Electrónova Engineering Lab</h2>
+    <p style="font-size:12px; color:#666;">Innovation Lifecycle Management Pipeline | Nairobi, Kenya</p>
+    <p style="font-size:12px; color:#666;">Contact: info@electronova.co.ke | +254 103 395 072</p>
   </div>
-</section>
-
-<section class="contact" id="contact">
-  <h2 class="section-title">Contact Us</h2>
-  <p><strong>Email:</strong> info@electronova.co.ke</p>
-  <p><strong>Phone:</strong> +254 103 395 072</p>
-</section>
+  <h3 style="text-align:center; background:#f4f7fb; padding:8px; margin-bottom:20px;">OFFICIAL PAYMENT RECEIPT</h3>
+  <table style="width:100%; font-size:14px; border-collapse:collapse; margin-bottom:25px;">
+    <tr><td style="padding:5px 0; font-weight:bold;">Requisition ID:</td><td id="rcptId" style="text-align:right;"></td></tr>
+    <tr><td style="padding:5px 0; font-weight:bold;">Student Name:</td><td id="rcptName" style="text-align:right;"></td></tr>
+    <tr><td style="padding:5px 0; font-weight:bold;">Admission No:</td><td id="rcptAdm" style="text-align:right;"></td></tr>
+    <tr><td style="padding:5px 0; font-weight:bold;">Project Title:</td><td id="rcptTitle" style="text-align:right;"></td></tr>
+    <tr><td style="padding:5px 0; font-weight:bold;">Transaction Reference:</td><td id="rcptTxCode" style="text-align:right; font-family:monospace; font-weight:bold; color:#00a2ff;"></td></tr>
+  </table>
+  <div style="border-top:1px dashed #ccc; border-bottom:1px dashed #ccc; padding:15px 0; margin-bottom:30px;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Total Project Cost:</span><span id="rcptTotal" style="font-weight:bold;"></span></div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#28a745; font-weight:bold;"><span>Total Amount Paid:</span><span id="rcptPaid"></span></div>
+    <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:bold; color:#081c3a; padding-top:8px; border-top:1px solid #eee;"><span>Remaining Balance:</span><span id="rcptBal"></span></div>
+  </div>
+  <div style="text-align:center; font-size:11px; color:#777; margin-top:4px;">
+    <p>Thank you for collaborating with Electrónova.</p>
+    <p>Verified via Electrónova Cloud Core Ledger Terminal.</p>
+  </div>
+</div>
 
 <footer><p>© 2026 Electrónova. All Rights Reserved.</p></footer>
 
-<a href="https://wa.me/254103395072" class="fab whatsapp" target="_blank">💬</a>
-<a href="tel:+254103395072" class="fab call">📞</a>
-
 <script>
-// ELECTRONOVA LIVE CONFIGURATION LINK 
 const firebaseConfig = {
   apiKey: "AIzaSyD-cchejeEdQyBtab_fX2l-yBW8y9CEFBE",
   authDomain: "electronova-fef78.firebaseapp.com",
@@ -325,23 +244,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// EXACT ORDER ARCHITECTURE STREAM 
+let activeTrackingData = null;
+
 const ORDER_STAGES = [
-  "Request received(pending review)",
-  "Request reviewed",
-  "Confirm review",
-  "Place order",
-  "Submit Order",
-  "Order submitted",
-  "Order received",
-  "Design stage",
-  "Fabrication stage",
-  "Testing stage",
-  "Final documentation",
-  "Completed awaiting delivery",
-  "Dispatched",
-  "Delivered",
-  "Order complete"
+  "Request received(pending review)", "Request reviewed", "Confirm review", "Place order", "Submit Order",
+  "Order submitted", "Order received", "Design stage", "Fabrication stage", "Testing stage",
+  "Final documentation", "Completed awaiting delivery", "Dispatched", "Delivered", "Order complete"
 ];
 
 function openTab(tabId) {
@@ -351,254 +259,165 @@ function openTab(tabId) {
   event.currentTarget.classList.add('active');
 }
 
-const counties = ["Mombasa", "Kwale", "Kilifi", "Tana River", "Lamu", "Taita/Taveta", "Garissa", "Wajir", "Mandera", "Marsabit", "Isiolo", "Meru", "Tharaka-Nithi", "Embu", "Kitui", "Machakos", "Makueni", "Nyandarua", "Nyeri", "Kirinyaga", "Murang'a", "Kiambu", "Turkana", "West Pokot", "Samburu", "Trans Nzoia", "Uasin Gishu", "Elgeyo/Marakwet", "Nandi", "Baringo", "Laikipia", "Nakuru", "Narok", "Kajiado", "Kericho", "Bomet", "Kakamega", "Vihiga", "Bungoma", "Busia", "Siaya", "Kisumu", "Homa Bay", "Migori", "Kisii", "Nyamira", "Nairobi"];
-const locSelect = document.getElementById("reqLocation");
-counties.sort().forEach((county) => {
-  let opt = document.createElement("option"); opt.value = county; opt.textContent = county; locSelect.appendChild(opt);
-});
-
 function initializeInitializationParameters() {
   db.collection("requests").get().then(snap => {
-    let nextNum = snap.size + 1;
-    let padded = String(nextNum).padStart(4, '0');
-    document.getElementById("reqId").value = `ESP${padded}RQ`;
-  }).catch(() => {
-    document.getElementById("reqId").value = "ESP0001RQ";
-  });
-  
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  const formattedDateTime = now.toISOString().slice(0, 16);
-  const timeInput = document.getElementById("reqDateTime");
-  timeInput.value = formattedDateTime;
+    document.getElementById("reqId").value = `ESP${String(snap.size + 1).padStart(4, '0')}RQ`;
+  }).catch(() => { document.getElementById("reqId").value = "ESP0001RQ"; });
+  document.getElementById("reqDateTime").value = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
 }
 window.onload = initializeInitializationParameters;
 
-function toggleSpec(val) {
-  const specGroup = document.getElementById("specifyGroup");
-  document.getElementById("reqSpecify").required = (val === "Other");
-  specGroup.style.display = (val === "Other") ? "block" : "none";
-}
-
-function updateFeedbackPlaceholder(val) {
-  const label = document.getElementById("feedbackContactLabel");
-  const input = document.getElementById("reqFeedbackContact");
-  label.textContent = val === "WhatsApp" ? "WhatsApp Number *" : "Facebook Handle *";
-  input.placeholder = val === "WhatsApp" ? "e.g. +2547XXXXXXXX" : "e.g. username";
-}
+const counties = ["Mombasa", "Kwale", "Kilifi", "Tana River", "Lamu", "Taita/Taveta", "Garissa", "Wajir", "Mandera", "Marsabit", "Isiolo", "Meru", "Tharaka-Nithi", "Embu", "Kitui", "Machakos", "Makueni", "Nyandarua", "Nyeri", "Kirinyaga", "Murang'a", "Kiambu", "Turkana", "West Pokot", "Samburu", "Trans Nzoia", "Uasin Gishu", "Elgeyo/Marakwet", "Nandi", "Baringo", "Laikipia", "Nakuru", "Narok", "Kajiado", "Kericho", "Bomet", "Kakamega", "Vihiga", "Bungoma", "Busia", "Siaya", "Kisumu", "Homa Bay", "Migori", "Kisii", "Nyamira", "Nairobi"];
+counties.sort().forEach(c => { let o = document.createElement("option"); o.value = c; o.textContent = c; locSelect.appendChild(o); });
 
 function validateRequestForm() { document.getElementById("submitRequestBtn").disabled = !document.getElementById("requestForm").checkValidity(); }
-function validateSearch() { const idInput = document.getElementById("searchId").value.trim(); document.getElementById("searchBtn").disabled = !(/^ESP\d{4}RQ$/i.test(idInput)); }
-function validateIdeaForm() { document.getElementById("submitIdeaBtn").disabled = !document.getElementById("submitIdeaForm").checkValidity(); }
-function validateConsultForm() {
-  const desc = document.getElementById("conDesc");
-  document.getElementById("charCount").textContent = 3000 - desc.value.length;
-  document.getElementById("submitConsultBtn").disabled = !document.getElementById("consultForm").checkValidity();
-}
+function validateSearch() { document.getElementById("searchBtn").disabled = !(/^ESP\d{4}RQ$/i.test(document.getElementById("searchId").value.trim())); }
 
 document.getElementById("requestForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const generatedId = document.getElementById("reqId").value;
-  
   const requestData = {
-    id: generatedId,
-    timestamp: document.getElementById("reqDateTime").value,
-    studentName: document.getElementById("reqName").value,
-    admNo: document.getElementById("reqAdmin").value,
-    college: document.getElementById("reqUni").value,
-    course: document.getElementById("reqCourse").value,
-    county: document.getElementById("reqLocation").value,
-    category: document.getElementById("reqCategory").value,
-    specifyOther: document.getElementById("reqSpecify").value || "",
-    projectTitle: document.getElementById("reqTitle").value,
-    minBudget: Number(document.getElementById("reqMinCost").value),
-    maxBudget: Number(document.getElementById("reqMaxCost").value),
-    feedbackPref: document.getElementById("reqFeedbackPref").value,
-    contactInfo: document.getElementById("reqFeedbackContact").value,
-    
-    // Core Workflow variables
-    currentStage: "Request received(pending review)",
-    reviewedCost: 0,
-    depositRequired: 0,
-    transactionCode: "",
-    paymentAmountEntered: 0,
-    progressImageUrl: "",
-    reportFileUrl: "",
-    starRating: 0
+    id: generatedId, timestamp: document.getElementById("reqDateTime").value,
+    studentName: document.getElementById("reqName").value, admNo: document.getElementById("reqAdmin").value,
+    college: document.getElementById("reqUni").value, course: document.getElementById("reqCourse").value,
+    county: document.getElementById("reqLocation").value, category: document.getElementById("reqCategory").value,
+    projectTitle: document.getElementById("reqTitle").value, minBudget: Number(document.getElementById("reqMinCost").value),
+    maxBudget: Number(document.getElementById("reqMaxCost").value), feedbackPref: "WhatsApp",
+    contactInfo: document.getElementById("reqFeedbackContact").value, currentStage: "Request received(pending review)",
+    reviewedCost: 0, amountPaid: 0, transactionCode: "", progressImageUrl: "", reportFileUrl: "", starRating: 0,
+    receiptDownloaded: false, courierInfo: ""
   };
-
   db.collection("requests").doc(generatedId).set(requestData).then(() => {
-    alert("Request " + generatedId + " Logged Successfully!");
-    document.getElementById("requestForm").reset();
-    initializeInitializationParameters();
-  }).catch(err => alert("Error writing data: " + err));
+    alert("Request " + generatedId + " Logged successfully!");
+    document.getElementById("requestForm").reset(); initializeInitializationParameters();
+  });
 });
 
 function trackProject() {
   const searchedId = document.getElementById("searchId").value.toUpperCase().trim();
-  
-  // Real-time listener so changes from admin panel reflect instantly
   db.collection("requests").doc(searchedId).onSnapshot((doc) => {
     if (doc.exists) {
       const data = doc.data();
+      activeTrackingData = data;
       document.getElementById("resTitle").textContent = "⚙️ " + data.projectTitle;
       document.getElementById("resName").textContent = data.studentName;
       document.getElementById("resDate").textContent = data.timestamp.replace("T", " ");
-      document.getElementById("resCategory").textContent = data.category;
-      document.getElementById("resCost").textContent = data.minBudget.toLocaleString() + " - " + data.maxBudget.toLocaleString();
-      
+
+      // Compute dynamic financial layout math
       if (data.reviewedCost > 0) {
-        document.getElementById("resFinalCost").textContent = "KES " + data.reviewedCost.toLocaleString();
+        const amtPaid = data.amountPaid || 0;
+        const balance = data.reviewedCost - amtPaid;
+        document.getElementById("ledTotal").textContent = "KES " + data.reviewedCost.toLocaleString();
+        document.getElementById("ledPaid").textContent = "KES " + amtPaid.toLocaleString();
+        document.getElementById("ledBalance").textContent = "KES " + balance.toLocaleString();
+        document.getElementById("ledBalance").style.color = balance <= 0 ? "#28a745" : "#dc3545";
       } else {
-        document.getElementById("resFinalCost").textContent = "Pending Lab Review";
+        document.getElementById("ledTotal").textContent = "Pending Lab Review";
+        document.getElementById("ledPaid").textContent = "KES 0";
+        document.getElementById("ledBalance").textContent = "Pending Review";
       }
 
-      // Progress Tracker Fill Calculation
+      // Receipt Display Conditional Trigger Logic
+      if (data.amountPaid > 0 && !data.receiptDownloaded) {
+        document.getElementById("receiptDownloadArea").style.display = "block";
+      } else {
+        document.getElementById("receiptDownloadArea").style.display = "none";
+      }
+
+      // Courier Display Logic
+      if (data.currentStage === "Dispatched" && data.courierInfo) {
+        document.getElementById("courierTrackingBox").style.display = "block";
+        document.getElementById("courierDetailsField").textContent = data.courierInfo;
+      } else {
+        document.getElementById("courierTrackingBox").style.display = "none";
+      }
+
       const currentStageIdx = ORDER_STAGES.indexOf(data.currentStage);
       document.getElementById("timelineStatusText").textContent = "Current Stage: " + data.currentStage;
-      const percentage = currentStageIdx >= 0 ? Math.round((currentStageIdx / (ORDER_STAGES.length - 1)) * 100) : 0;
-      document.getElementById("progressInnerFill").style.width = percentage + "%";
+      document.getElementById("progressInnerFill").style.width = (currentStageIdx >= 0 ? Math.round((currentStageIdx / (ORDER_STAGES.length - 1)) * 100) : 0) + "%";
 
-      // Interactive Action Logic Block
       const actionBox = document.getElementById("studentActionBox");
-      actionBox.style.display = "none";
-      actionBox.innerHTML = "";
+      actionBox.style.display = "none"; actionBox.innerHTML = "";
 
       if (data.currentStage === "Request reviewed") {
         actionBox.style.display = "block";
-        actionBox.innerHTML = `
-          <p style="color:#856404; font-weight:bold;">The project has been evaluated by technical team. Please verify the quoted pricing value.</p>
-          <button class="btn" style="background:#28a745; margin-top:10px;" onclick="updateStage('${data.id}', 'Confirm review')">Confirm Review (Agree with Cost)</button>
-        `;
-      } 
-      else if (data.currentStage === "Confirm review") {
+        actionBox.innerHTML = `<button class="btn" style="background:#28a745;" onclick="updateStage('${data.id}', 'Confirm review')">Confirm Review (Agree with Cost)</button>`;
+      } else if (data.currentStage === "Confirm review") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `<button class="btn" style="background:#00a2ff;" onclick="updateStage('${data.id}', 'Place order')">Place Order</button>`;
+      } else if (data.currentStage === "Place order") {
         actionBox.style.display = "block";
         actionBox.innerHTML = `
-          <p style="color:#856404; font-weight:bold;">Review confirmed. You can now lock down and submit the official lab assembly parameters.</p>
-          <button class="btn" style="background:#00a2ff; margin-top:10px;" onclick="updateStage('${data.id}', 'Place order')">Place Order</button>
-        `;
-      }
-      else if (data.currentStage === "Place order") {
-        actionBox.style.display = "block";
-        actionBox.innerHTML = `
-          <h4 style="color:#856404; margin-bottom:5px;">💳 Submit Order & Deposit Allocation</h4>
-          <p>A 60% standard production deposit of <strong>KES ${(data.reviewedCost * 0.6).toLocaleString()}</strong> is required to launch laboratory engineering schedules.</p>
-          <div style="background:#fff; padding:12px; border-radius:6px; margin:10px 0; border:1px dashed #ffc107;">
-            <strong>💵 Payment Instructions:</strong><br>
-            Pay to <strong>0103395072 AIRTEL MONEY</strong><br>
-            Then confirm your transaction details below.
+          <h4 style="color:#856404; margin-bottom:5px;">💳 Submit Order & Payment Validation</h4>
+          <p>Please provide a 60% system deposit threshold (KES ${(data.reviewedCost * 0.6).toLocaleString()}) or pay in full to commission work.</p>
+          <div style="background:#fff; padding:12px; border-radius:6px; margin:10px 0; border:1px dashed #ffc107; font-size:14px;">
+            Pay to <strong>0103395072 AIRTEL MONEY</strong><br>Confirm your payment tracking details below.
           </div>
-          <div class="form-group">
-            <label style="font-size:13px;">Transaction Code *</label>
-            <input type="text" id="actionTxCode" placeholder="e.g. MP26XYZ..." style="padding:8px;">
-          </div>
-          <div class="form-group">
-            <label style="font-size:13px;">Amount Paid (KES) *</label>
-            <input type="number" id="actionTxAmount" placeholder="Amount Sent" style="padding:8px;">
-          </div>
-          <button class="btn" style="background:#28a745; width:100%; margin:0;" onclick="submitPaymentDetails('${data.id}', ${(data.reviewedCost * 0.6)})">Submit Order Confirmation</button>
+          <div class="form-group"><label style="font-size:13px;">Transaction Code *</label><input type="text" id="actionTxCode" style="padding:8px;"></div>
+          <div class="form-group"><label style="font-size:13px;">Amount Paid (KES) *</label><input type="number" id="actionTxAmount" style="padding:8px;"></div>
+          <button class="btn" style="background:#28a745; width:100%; margin:0;" onclick="submitPaymentDetails('${data.id}')">Submit Order</button>
         `;
-      }
-      else if (data.currentStage === "Dispatched") {
+      } else if (data.currentStage === "Dispatched") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `<button class="btn" style="background:#28a745;" onclick="updateStage('${data.id}', 'Delivered')">Confirm Delivery Receipt</button>`;
+      } else if (data.currentStage === "Delivered") {
         actionBox.style.display = "block";
         actionBox.innerHTML = `
-          <p style="color:#155724; font-weight:bold;">Your device payload has left the lab pipeline! Please tap below once you safely receive it.</p>
-          <button class="btn" style="background:#28a745; margin-top:10px;" onclick="updateStage('${data.id}', 'Delivered')">Confirm Delivery Receipt</button>
-        `;
-      }
-      else if (data.currentStage === "Delivered") {
-        actionBox.style.display = "block";
-        actionBox.innerHTML = `
-          <p style="color:#155724; font-weight:bold;">Thank you! Your project order is now complete. Please rate our technical assistance below:</p>
+          <p>Rate our service performance response below:</p>
           <div class="star-rating" id="starPanel">
-            <span onclick="rateProject('${data.id}', 1)">★</span>
-            <span onclick="rateProject('${data.id}', 2)">★</span>
-            <span onclick="rateProject('${data.id}', 3)">★</span>
-            <span onclick="rateProject('${data.id}', 4)">★</span>
-            <span onclick="rateProject('${data.id}', 5)">★</span>
-          </div>
-        `;
-        if(data.starRating > 0) {
-          highlightStars(data.starRating);
-          actionBox.innerHTML += `<p style="margin-top:5px; font-weight:bold; color:#28a745;">You rated us ${data.starRating} Stars! Thank you.</p>`;
-        }
-      }
-      else if (data.currentStage === "Order complete") {
-        actionBox.style.display = "block";
-        actionBox.innerHTML = `<p style="color:#155724; font-weight:bold; text-align:center;">🎯 Order Complete! Thank you for engineering with Electrónova.</p>`;
+            <span onclick="rateProject('${data.id}', 1)">★</span><span onclick="rateProject('${data.id}', 2)">★</span><span onclick="rateProject('${data.id}', 3)">★</span><span onclick="rateProject('${data.id}', 4)">★</span><span onclick="rateProject('${data.id}', 5)">★</span>
+          </div>`;
+        if(data.starRating > 0) actionBox.innerHTML += `<p style="color:#28a745; font-weight:bold; margin-top:5px;">You rated us ${data.starRating} Stars!</p>`;
+      } else if (data.currentStage === "Order complete") {
+        actionBox.style.display = "block"; actionBox.innerHTML = `<p style="color:#155724; font-weight:bold; text-align:center;">🎯 Order Complete! Thank you.</p>`;
       }
 
-      // Handle Image Preview rendering
       const imgElement = document.getElementById("resImg");
-      const noImgText = document.getElementById("noImgText");
-      if (data.progressImageUrl) {
-        imgElement.src = data.progressImageUrl;
-        imgElement.style.display = "block";
-        noImgText.style.display = "none";
-      } else {
-        imgElement.style.display = "none";
-        noImgText.style.display = "block";
-      }
+      if (data.progressImageUrl) { imgElement.src = data.progressImageUrl; imgElement.style.display = "block"; document.getElementById("noImgText").style.display = "none"; }
+      else { imgElement.style.display = "none"; document.getElementById("noImgText").style.display = "block"; }
 
-      // Handle Document Reports rendering
       const docNode = document.getElementById("reportDownloadNode");
-      const downBtn = document.getElementById("downloadReportBtn");
-      if (data.reportFileUrl) {
-        downBtn.href = data.reportFileUrl;
-        docNode.style.display = "block";
-      } else {
-        docNode.style.display = "none";
-      }
+      if (data.reportFileUrl) { document.getElementById("downloadReportBtn").href = data.reportFileUrl; docNode.style.display = "block"; }
+      else { docNode.style.display = "none"; }
 
       document.getElementById("statusResult").style.display = "block";
-    } else {
-      alert("No engineering record found.");
-    }
+    } else { alert("No engineering record found."); }
   });
 }
 
-function updateStage(id, targetStage) {
-  db.collection("requests").doc(id).update({ currentStage: targetStage })
-    .then(() => console.log("Stage shifted to: " + targetStage));
-}
+function updateStage(id, s) { db.collection("requests").doc(id).update({ currentStage: s }); }
 
-function submitPaymentDetails(id, minDeposit) {
+function submitPaymentDetails(id) {
   const code = document.getElementById("actionTxCode").value.trim();
   const amt = Number(document.getElementById("actionTxAmount").value.trim());
+  if(!code || !amt) { alert("Complete all validation items before submission."); return; }
+  db.collection("requests").doc(id).update({ transactionCode: code, amountPaid: amt, currentStage: "Order submitted", receiptDownloaded: false })
+    .then(() => alert("Payment parameters queued successfully for confirmation verification."));
+}
 
-  if(!code || !amt) {
-    alert("Please complete both payment tracking information fields first.");
-    return;
-  }
-  if(amt < minDeposit) {
-    alert("The amount entered is less than the required 60% deposit configuration standard.");
-    return;
-  }
+function generateReceiptPDF() {
+  if (!activeTrackingData) return;
+  const d = activeTrackingData;
+  document.getElementById("rcptId").textContent = d.id;
+  document.getElementById("rcptName").textContent = d.studentName;
+  document.getElementById("rcptAdm").textContent = d.admNo;
+  document.getElementById("rcptTitle").textContent = d.projectTitle;
+  document.getElementById("rcptTxCode").textContent = d.transactionCode || "N/A";
+  document.getElementById("rcptTotal").textContent = "KES " + d.reviewedCost.toLocaleString();
+  document.getElementById("rcptPaid").textContent = "KES " + (d.amountPaid || 0).toLocaleString();
+  document.getElementById("rcptBal").textContent = "KES " + (d.reviewedCost - (d.amountPaid || 0)).toLocaleString();
 
-  db.collection("requests").doc(id).update({
-    transactionCode: code,
-    paymentAmountEntered: amt,
-    currentStage: "Order submitted"
-  }).then(() => {
-    alert("Payment transaction successfully logged! Standing by for administrative lab verification.");
+  const element = document.getElementById("receiptTemplate");
+  element.style.display = "block";
+  const opt = { margin: 10, filename: `Electrónova_Receipt_${d.id}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+  
+  html2pdf().set(opt).from(element).save().then(() => {
+    element.style.display = "none";
+    db.collection("requests").doc(d.id).update({ receiptDownloaded: true });
   });
 }
 
-function rateProject(id, stars) {
-  db.collection("requests").doc(id).update({
-    starRating: stars,
-    currentStage: "Order complete"
-  }).then(() => {
-    alert("Thank you for your review response!");
-  });
-}
-
-function highlightStars(count) {
-  const stars = document.querySelectorAll("#starPanel span");
-  stars.forEach((s, idx) => {
-    if(idx < count) s.classList.add("selected");
-  });
-}
+function rateProject(id, stars) { db.collection("requests").doc(id).update({ starRating: stars, currentStage: "Order complete" }); }
 </script>
 </body>
 </html>
