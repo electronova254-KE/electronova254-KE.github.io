@@ -41,12 +41,22 @@
   .auto-input { background: #eef4fb; font-weight: bold; color: #555; }
   .btn-submit { background: #28a745; color: white; width: 100%; padding: 14px; font-size: 18px; }
   .btn-submit:hover { background: #218838; }
-  .status-tracker { display: flex; justify-content: space-between; margin: 30px 0; padding: 20px 10px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 10px; }
-  .status-step { text-align: center; flex: 1; min-width: 80px; font-weight: bold; color: #ccc; }
-  .status-step.active { color: #28a745; }
-  .status-result-card { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #00a2ff; margin-top: 20px; }
-  .confirm-box { display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap; }
-  .btn-confirm { background: #17a2b8; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+  
+  /* ADVANCED PROGRESS TIMELINE INDICATOR */
+  .timeline-bar-wrapper { width: 100%; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e1e4e8; margin-bottom: 25px; }
+  .timeline-status-text { text-align: center; font-size: 18px; font-weight: bold; color: #00a2ff; margin-bottom: 10px; }
+  .progress-outer { width: 100%; height: 12px; background: #e1e4e8; border-radius: 10px; overflow: hidden; }
+  .progress-inner { height: 100%; width: 0%; background: linear-gradient(90deg, #00a2ff, #28a745); transition: width 0.5s ease; }
+
+  .status-layout-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-top: 25px; }
+  @media(min-width: 768px) { .status-layout-grid { grid-template-columns: 1.2fr 0.8fr; } }
+  .status-result-card { background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #e1e4e8; }
+  
+  /* Star Rating Styles */
+  .star-rating { display: flex; gap: 5px; margin-top: 10px; font-size: 30px; cursor: pointer; color: #ccc; }
+  .star-rating span:hover, .star-rating span.selected { color: #ffca28; }
+
+  .interactive-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-top: 15px; }
   .about { max-width: 900px; margin: auto; text-align: center; font-size: 18px; }
   .contact { text-align: center; }
   .contact a { text-decoration: none; color: #007bff; font-weight: bold; }
@@ -211,31 +221,39 @@
           <button type="button" id="searchBtn" class="btn" style="background:#28a745; margin:0;" onclick="trackProject()" disabled>Search</button>
         </div>
       </div>
+      
       <div id="statusResult" style="display:none;">
-        <div class="status-result-card">
-          <h3 id="resTitle" style="color:#081c3a; margin-bottom: 10px;"></h3>
-          <p><strong>Student Name:</strong> <span id="resName"></span></p>
-          <p><strong>Date Requested:</strong> <span id="resDate"></span></p>
-          <p><strong>Category:</strong> <span id="resCategory"></span></p>
-          <p><strong>Budget Range:</strong> KES <span id="resCost"></span></p>
-          
-          <div class="status-tracker">
-            <div class="status-step" id="step1">Designed</div>
-            <div class="status-step" id="step2">Fabricated</div>
-            <div class="status-step" id="step3">Tested</div>
-            <div class="status-step" id="step4">Completed</div>
-            <div class="status-step" id="step5">Paid</div>
-            <div class="status-step" id="step6">Delivered</div>
+        <div class="timeline-bar-wrapper">
+          <div class="timeline-status-text" id="timelineStatusText">Current Stage: Request received(pending review)</div>
+          <div class="progress-outer">
+            <div class="progress-inner" id="progressInnerFill"></div>
+          </div>
+        </div>
+
+        <div class="status-layout-grid">
+          <div class="status-result-card">
+            <h3 id="resTitle" style="color:#081c3a; margin-bottom: 15px; font-size:22px; border-bottom:2px solid #00a2ff; padding-bottom:5px;"></h3>
+            <p style="margin-bottom:8px;"><strong>Student Name:</strong> <span id="resName" style="color:#444;"></span></p>
+            <p style="margin-bottom:8px;"><strong>Date Requested:</strong> <span id="resDate" style="color:#444;"></span></p>
+            <p style="margin-bottom:8px;"><strong>Category:</strong> <span id="resCategory" style="color:#444;"></span></p>
+            <p style="margin-bottom:8px;"><strong>Estimated Budget Range:</strong> KES <span id="resCost" style="color:#444;"></span></p>
+            <p style="margin-bottom:8px; font-size: 18px; color: #28a745;"><strong>Official Reviewed Cost:</strong> <span id="resFinalCost" style="font-weight:bold;">Pending Lab Review</span></p>
+
+            <div id="studentActionBox" class="interactive-box" style="display:none;"></div>
           </div>
 
-          <div style="margin-top: 15px;">
-            <p><strong>Latest Engineering Output Preview:</strong></p>
-            <img id="resImg" src="" alt="Live Hardware Preview" style="max-width:100%; max-height:350px; border-radius:8px; margin-top:10px; display:none; border: 1px solid #ccc;">
-          </div>
+          <div style="display:flex; flex-direction:column; gap:15px; background:#fff; border:1px solid #e1e4e8; border-radius:12px; padding:15px;">
+            <p style="font-weight:bold; color:#081c3a; text-align:center;">Project Output Media</p>
+            
+            <div style="width:100%; min-height:160px; display:flex; align-items:center; justify-content:center; background:#f8f9fa; border-radius:8px; overflow:hidden;">
+              <img id="resImg" src="" alt="Hardware View" style="max-width:100%; max-height:220px; object-fit:contain; display:none;">
+              <p id="noImgText" style="color:#aaa; text-align:center; padding:10px; font-size:13px;">No tracking photos uploaded for this segment.</p>
+            </div>
 
-          <div class="confirm-box">
-            <button class="btn-confirm" onclick="alert('Payment notification logged.')">💳 Confirm Payment</button>
-            <button class="btn-confirm" style="background:#28a745;" onclick="alert('Delivery validation logged.')">📦 Confirm Delivery</button>
+            <div id="reportDownloadNode" style="display:none; text-align:center; border-top:1px solid #eee; padding-top:10px;">
+              <p style="font-size:13px; font-weight:bold; color:#081c3a; margin-bottom:5px;">📋 Final Engineering Documentation Report</p>
+              <a id="downloadReportBtn" href="#" download="Project_Report.pdf" class="btn" style="background:#17a2b8; font-size:13px; padding:8px 15px; margin:0;">Download Report (PDF/Docx)</a>
+            </div>
           </div>
         </div>
       </div>
@@ -307,6 +325,25 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// EXACT ORDER ARCHITECTURE STREAM 
+const ORDER_STAGES = [
+  "Request received(pending review)",
+  "Request reviewed",
+  "Confirm review",
+  "Place order",
+  "Submit Order",
+  "Order submitted",
+  "Order received",
+  "Design stage",
+  "Fabrication stage",
+  "Testing stage",
+  "Final documentation",
+  "Completed awaiting delivery",
+  "Dispatched",
+  "Delivered",
+  "Order complete"
+];
+
 function openTab(tabId) {
   document.querySelectorAll('.portal-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -334,7 +371,6 @@ function initializeInitializationParameters() {
   const formattedDateTime = now.toISOString().slice(0, 16);
   const timeInput = document.getElementById("reqDateTime");
   timeInput.value = formattedDateTime;
-  timeInput.min = formattedDateTime.slice(0, 10) + "T00:00";
 }
 window.onload = initializeInitializationParameters;
 
@@ -379,10 +415,16 @@ document.getElementById("requestForm").addEventListener("submit", function(e) {
     maxBudget: Number(document.getElementById("reqMaxCost").value),
     feedbackPref: document.getElementById("reqFeedbackPref").value,
     contactInfo: document.getElementById("reqFeedbackContact").value,
-    currentStage: "Designed",
-    isPaid: false,
-    isDelivered: false,
-    progressImageUrl: ""
+    
+    // Core Workflow variables
+    currentStage: "Request received(pending review)",
+    reviewedCost: 0,
+    depositRequired: 0,
+    transactionCode: "",
+    paymentAmountEntered: 0,
+    progressImageUrl: "",
+    reportFileUrl: "",
+    starRating: 0
   };
 
   db.collection("requests").doc(generatedId).set(requestData).then(() => {
@@ -392,76 +434,169 @@ document.getElementById("requestForm").addEventListener("submit", function(e) {
   }).catch(err => alert("Error writing data: " + err));
 });
 
-// IDEA BLUEPRINT SUBMISSION EVENT LISTENER TO FIRESTORE
-document.getElementById("submitIdeaForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  
-  const now = new Date();
-  const timestampStr = now.getFullYear() + "-" + 
-                       String(now.getMonth() + 1).padStart(2, '0') + "-" + 
-                       String(now.getDate()).padStart(2, '0') + " " + 
-                       String(now.getHours()).padStart(2, '0') + ":" + 
-                       String(now.getMinutes()).padStart(2, '0');
-
-  const blueprintData = {
-    studentName: document.getElementById("ideaName").value.trim(),
-    projectTitle: document.getElementById("ideaTitle").value.trim(),
-    blueprintDetails: document.getElementById("ideaText").value.trim(),
-    submittedAt: timestampStr,
-    status: "Under Review"
-  };
-
-  const submitBtn = document.getElementById("submitIdeaBtn");
-  submitBtn.innerText = "Transmitting Blueprint...";
-  submitBtn.disabled = true;
-
-  db.collection("blueprints").add(blueprintData)
-    .then(() => {
-      alert("Success! Your engineering blueprint for '" + blueprintData.projectTitle + "' has been submitted to the lab team for evaluation.");
-      document.getElementById("submitIdeaForm").reset();
-      submitBtn.innerText = "Submit Project Idea Blueprint";
-    })
-    .catch((err) => {
-      console.error("Error logging blueprint: ", err);
-      alert("Error transmitting data to cloud node: " + err.message);
-      submitBtn.innerText = "Submit Project Idea Blueprint";
-      submitBtn.disabled = false;
-    });
-});
-
 function trackProject() {
   const searchedId = document.getElementById("searchId").value.toUpperCase().trim();
-  db.collection("requests").doc(searchedId).get().then((doc) => {
+  
+  // Real-time listener so changes from admin panel reflect instantly
+  db.collection("requests").doc(searchedId).onSnapshot((doc) => {
     if (doc.exists) {
       const data = doc.data();
-      document.getElementById("resTitle").textContent = data.projectTitle;
+      document.getElementById("resTitle").textContent = "⚙️ " + data.projectTitle;
       document.getElementById("resName").textContent = data.studentName;
       document.getElementById("resDate").textContent = data.timestamp.replace("T", " ");
       document.getElementById("resCategory").textContent = data.category;
       document.getElementById("resCost").textContent = data.minBudget.toLocaleString() + " - " + data.maxBudget.toLocaleString();
       
-      document.querySelectorAll(".status-step").forEach(step => step.classList.remove("active"));
-      const stages = ["Designed", "Fabricated", "Tested", "Completed"];
-      const currentStageIndex = stages.indexOf(data.currentStage);
-      
-      if(currentStageIndex >= 0) document.getElementById("step1").classList.add("active");
-      if(currentStageIndex >= 1) document.getElementById("step2").classList.add("active");
-      if(currentStageIndex >= 2) document.getElementById("step3").classList.add("active");
-      if(currentStageIndex >= 3) document.getElementById("step4").classList.add("active");
-      if(data.isPaid) document.getElementById("step5").classList.add("active");
-      if(data.isDelivered) document.getElementById("step6").classList.add("active");
-      
+      if (data.reviewedCost > 0) {
+        document.getElementById("resFinalCost").textContent = "KES " + data.reviewedCost.toLocaleString();
+      } else {
+        document.getElementById("resFinalCost").textContent = "Pending Lab Review";
+      }
+
+      // Progress Tracker Fill Calculation
+      const currentStageIdx = ORDER_STAGES.indexOf(data.currentStage);
+      document.getElementById("timelineStatusText").textContent = "Current Stage: " + data.currentStage;
+      const percentage = currentStageIdx >= 0 ? Math.round((currentStageIdx / (ORDER_STAGES.length - 1)) * 100) : 0;
+      document.getElementById("progressInnerFill").style.width = percentage + "%";
+
+      // Interactive Action Logic Block
+      const actionBox = document.getElementById("studentActionBox");
+      actionBox.style.display = "none";
+      actionBox.innerHTML = "";
+
+      if (data.currentStage === "Request reviewed") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `
+          <p style="color:#856404; font-weight:bold;">The project has been evaluated by technical team. Please verify the quoted pricing value.</p>
+          <button class="btn" style="background:#28a745; margin-top:10px;" onclick="updateStage('${data.id}', 'Confirm review')">Confirm Review (Agree with Cost)</button>
+        `;
+      } 
+      else if (data.currentStage === "Confirm review") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `
+          <p style="color:#856404; font-weight:bold;">Review confirmed. You can now lock down and submit the official lab assembly parameters.</p>
+          <button class="btn" style="background:#00a2ff; margin-top:10px;" onclick="updateStage('${data.id}', 'Place order')">Place Order</button>
+        `;
+      }
+      else if (data.currentStage === "Place order") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `
+          <h4 style="color:#856404; margin-bottom:5px;">💳 Submit Order & Deposit Allocation</h4>
+          <p>A 60% standard production deposit of <strong>KES ${(data.reviewedCost * 0.6).toLocaleString()}</strong> is required to launch laboratory engineering schedules.</p>
+          <div style="background:#fff; padding:12px; border-radius:6px; margin:10px 0; border:1px dashed #ffc107;">
+            <strong>💵 Payment Instructions:</strong><br>
+            Pay to <strong>0103395072 AIRTEL MONEY</strong><br>
+            Then confirm your transaction details below.
+          </div>
+          <div class="form-group">
+            <label style="font-size:13px;">Transaction Code *</label>
+            <input type="text" id="actionTxCode" placeholder="e.g. MP26XYZ..." style="padding:8px;">
+          </div>
+          <div class="form-group">
+            <label style="font-size:13px;">Amount Paid (KES) *</label>
+            <input type="number" id="actionTxAmount" placeholder="Amount Sent" style="padding:8px;">
+          </div>
+          <button class="btn" style="background:#28a745; width:100%; margin:0;" onclick="submitPaymentDetails('${data.id}', ${(data.reviewedCost * 0.6)})">Submit Order Confirmation</button>
+        `;
+      }
+      else if (data.currentStage === "Dispatched") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `
+          <p style="color:#155724; font-weight:bold;">Your device payload has left the lab pipeline! Please tap below once you safely receive it.</p>
+          <button class="btn" style="background:#28a745; margin-top:10px;" onclick="updateStage('${data.id}', 'Delivered')">Confirm Delivery Receipt</button>
+        `;
+      }
+      else if (data.currentStage === "Delivered") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `
+          <p style="color:#155724; font-weight:bold;">Thank you! Your project order is now complete. Please rate our technical assistance below:</p>
+          <div class="star-rating" id="starPanel">
+            <span onclick="rateProject('${data.id}', 1)">★</span>
+            <span onclick="rateProject('${data.id}', 2)">★</span>
+            <span onclick="rateProject('${data.id}', 3)">★</span>
+            <span onclick="rateProject('${data.id}', 4)">★</span>
+            <span onclick="rateProject('${data.id}', 5)">★</span>
+          </div>
+        `;
+        if(data.starRating > 0) {
+          highlightStars(data.starRating);
+          actionBox.innerHTML += `<p style="margin-top:5px; font-weight:bold; color:#28a745;">You rated us ${data.starRating} Stars! Thank you.</p>`;
+        }
+      }
+      else if (data.currentStage === "Order complete") {
+        actionBox.style.display = "block";
+        actionBox.innerHTML = `<p style="color:#155724; font-weight:bold; text-align:center;">🎯 Order Complete! Thank you for engineering with Electrónova.</p>`;
+      }
+
+      // Handle Image Preview rendering
       const imgElement = document.getElementById("resImg");
+      const noImgText = document.getElementById("noImgText");
       if (data.progressImageUrl) {
         imgElement.src = data.progressImageUrl;
         imgElement.style.display = "block";
+        noImgText.style.display = "none";
       } else {
         imgElement.style.display = "none";
+        noImgText.style.display = "block";
       }
+
+      // Handle Document Reports rendering
+      const docNode = document.getElementById("reportDownloadNode");
+      const downBtn = document.getElementById("downloadReportBtn");
+      if (data.reportFileUrl) {
+        downBtn.href = data.reportFileUrl;
+        docNode.style.display = "block";
+      } else {
+        docNode.style.display = "none";
+      }
+
       document.getElementById("statusResult").style.display = "block";
     } else {
-      alert("No engineering record associated with ID: " + searchedId);
+      alert("No engineering record found.");
     }
+  });
+}
+
+function updateStage(id, targetStage) {
+  db.collection("requests").doc(id).update({ currentStage: targetStage })
+    .then(() => console.log("Stage shifted to: " + targetStage));
+}
+
+function submitPaymentDetails(id, minDeposit) {
+  const code = document.getElementById("actionTxCode").value.trim();
+  const amt = Number(document.getElementById("actionTxAmount").value.trim());
+
+  if(!code || !amt) {
+    alert("Please complete both payment tracking information fields first.");
+    return;
+  }
+  if(amt < minDeposit) {
+    alert("The amount entered is less than the required 60% deposit configuration standard.");
+    return;
+  }
+
+  db.collection("requests").doc(id).update({
+    transactionCode: code,
+    paymentAmountEntered: amt,
+    currentStage: "Order submitted"
+  }).then(() => {
+    alert("Payment transaction successfully logged! Standing by for administrative lab verification.");
+  });
+}
+
+function rateProject(id, stars) {
+  db.collection("requests").doc(id).update({
+    starRating: stars,
+    currentStage: "Order complete"
+  }).then(() => {
+    alert("Thank you for your review response!");
+  });
+}
+
+function highlightStars(count) {
+  const stars = document.querySelectorAll("#starPanel span");
+  stars.forEach((s, idx) => {
+    if(idx < count) s.classList.add("selected");
   });
 }
 </script>
