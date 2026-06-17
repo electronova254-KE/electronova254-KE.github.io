@@ -26,8 +26,6 @@
   .btn:disabled { background: #cccccc !important; cursor: not-allowed; }
   section { padding: 70px 8%; scroll-margin-top: 80px; }
   .section-title { text-align: center; margin-bottom: 40px; color: #081c3a; font-size: 32px; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
-  .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
   .portal-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1000px; margin: auto; }
   .portal-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #eef4fb; padding-bottom: 15px; }
   .tab-btn { padding: 12px 20px; background: #eef4fb; color: #081c3a; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
@@ -54,15 +52,11 @@
   .star-rating span:hover, .star-rating span.selected { color: #ffca28; }
   .interactive-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-top: 15px; }
   
-  /* Financial Statement Styling */
   .ledger-box { background: #eef4fb; border-radius: 8px; padding: 15px; margin: 15px 0; border: 1px solid #b8daff; }
   .ledger-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 15px; }
   .ledger-row.total { font-weight: bold; font-size: 17px; border-top: 1px solid #b8daff; padding-top: 6px; margin-top: 6px; color: #081c3a; }
   
   footer { background: #081c3a; color: white; text-align: center; padding: 25px; }
-  .fab { position: fixed; right: 20px; width: 55px; height: 55px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999; }
-  .whatsapp { bottom: 20px; background: #25D366; }
-  .call { bottom: 85px; background: #007BFF; }
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -82,7 +76,6 @@
     </div>
     <ul>
       <li><a href="#home">Home</a></li>
-      <li><a href="#services">Services</a></li>
       <li><a href="#student-portal">Student Portal</a></li>
     </ul>
   </nav>
@@ -119,12 +112,19 @@
         <div class="form-row">
           <div class="form-group">
             <label>Current Location (County) *</label>
-            <select id="reqLocation" required><option value="">-- Select County --</option></select>
+            <select id="reqLocation" required>
+              <option value="">-- Select County --</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Project Category *</label>
             <select id="reqCategory" required>
-              <option value="Embedded Electronics">Embedded Electronics</option>
+              <option value="">-- Select Category --</option>
+              <option value="Embedded Systems and IoT">Embedded Systems and IoT</option>
+              <option value="Automation">Automation</option>
+              <option value="Electronics and Telecommunications">Electronics and Telecommunications</option>
+              <option value="Instrumentation and Control">Instrumentation and Control</option>
+              <option value="Electrical Systems">Electrical Systems</option>
               <option value="Power Electronics">Power Electronics</option>
               <option value="Mechatronics">Mechatronics</option>
             </select>
@@ -202,13 +202,12 @@
       </div>
     </div>
   </div>
-</section>
+</section>Section Container Ends
 
 <div id="receiptTemplate" style="display:none; padding:40px; background:#fff; font-family:Arial, sans-serif; color:#333; max-width:600px;">
   <div style="text-align:center; margin-bottom:20px; border-bottom:2px solid #081c3a; padding-bottom:15px;">
     <h2 style="color:#081c3a; text-transform:uppercase; letter-spacing:1px;">Electrónova Engineering Lab</h2>
-    <p style="font-size:12px; color:#666;">Innovation Lifecycle Management Pipeline | Nairobi, Kenya</p>
-    <p style="font-size:12px; color:#666;">Contact: info@electronova.co.ke | +254 103 395 072</p>
+    <p style="font-size:12px; color:#666;">Nairobi, Kenya | info@electronova.co.ke</p>
   </div>
   <h3 style="text-align:center; background:#f4f7fb; padding:8px; margin-bottom:20px;">OFFICIAL PAYMENT RECEIPT</h3>
   <table style="width:100%; font-size:14px; border-collapse:collapse; margin-bottom:25px;">
@@ -222,10 +221,6 @@
     <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Total Project Cost:</span><span id="rcptTotal" style="font-weight:bold;"></span></div>
     <div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#28a745; font-weight:bold;"><span>Total Amount Paid:</span><span id="rcptPaid"></span></div>
     <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:bold; color:#081c3a; padding-top:8px; border-top:1px solid #eee;"><span>Remaining Balance:</span><span id="rcptBal"></span></div>
-  </div>
-  <div style="text-align:center; font-size:11px; color:#777; margin-top:4px;">
-    <p>Thank you for collaborating with Electrónova.</p>
-    <p>Verified via Electrónova Cloud Core Ledger Terminal.</p>
   </div>
 </div>
 
@@ -243,7 +238,6 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
 let activeTrackingData = null;
 
 const ORDER_STAGES = [
@@ -251,6 +245,10 @@ const ORDER_STAGES = [
   "Order submitted", "Order received", "Design stage", "Fabrication stage", "Testing stage",
   "Final documentation", "Completed awaiting delivery", "Dispatched", "Delivered", "Order complete"
 ];
+
+const counties = ["Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo/Marakwet", "Embu", "Garissa", "Homa Bay", "Isiolo", "Kajiado", "Kakamega", "Kericho", "Kiambu", "Kilifi", "Kirinyaga", "Kisii", "Kisumu", "Kitui", "Kwale", "Laikipia", "Lamu", "Machakos", "Makueni", "Mandera", "Marsabit", "Meru", "Migori", "Marsabit", "Mombasa", "Murang'a", "Nairobi", "Nakuru", "Nandi", "Narok", "Nyamira", "Nyandarua", "Nyeri", "Samburu", "Siaya", "Taita/Taveta", "Tana River", "Tharaka-Nithi", "Trans Nzoia", "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"];
+const locSelect = document.getElementById("reqLocation");
+counties.forEach(c => { let o = document.createElement("option"); o.value = c; o.textContent = c; locSelect.appendChild(o); });
 
 function openTab(tabId) {
   document.querySelectorAll('.portal-content').forEach(tab => tab.classList.remove('active'));
@@ -266,9 +264,6 @@ function initializeInitializationParameters() {
   document.getElementById("reqDateTime").value = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
 }
 window.onload = initializeInitializationParameters;
-
-const counties = ["Mombasa", "Kwale", "Kilifi", "Tana River", "Lamu", "Taita/Taveta", "Garissa", "Wajir", "Mandera", "Marsabit", "Isiolo", "Meru", "Tharaka-Nithi", "Embu", "Kitui", "Machakos", "Makueni", "Nyandarua", "Nyeri", "Kirinyaga", "Murang'a", "Kiambu", "Turkana", "West Pokot", "Samburu", "Trans Nzoia", "Uasin Gishu", "Elgeyo/Marakwet", "Nandi", "Baringo", "Laikipia", "Nakuru", "Narok", "Kajiado", "Kericho", "Bomet", "Kakamega", "Vihiga", "Bungoma", "Busia", "Siaya", "Kisumu", "Homa Bay", "Migori", "Kisii", "Nyamira", "Nairobi"];
-counties.sort().forEach(c => { let o = document.createElement("option"); o.value = c; o.textContent = c; locSelect.appendChild(o); });
 
 function validateRequestForm() { document.getElementById("submitRequestBtn").disabled = !document.getElementById("requestForm").checkValidity(); }
 function validateSearch() { document.getElementById("searchBtn").disabled = !(/^ESP\d{4}RQ$/i.test(document.getElementById("searchId").value.trim())); }
@@ -303,7 +298,6 @@ function trackProject() {
       document.getElementById("resName").textContent = data.studentName;
       document.getElementById("resDate").textContent = data.timestamp.replace("T", " ");
 
-      // Compute dynamic financial layout math
       if (data.reviewedCost > 0) {
         const amtPaid = data.amountPaid || 0;
         const balance = data.reviewedCost - amtPaid;
@@ -317,14 +311,12 @@ function trackProject() {
         document.getElementById("ledBalance").textContent = "Pending Review";
       }
 
-      // Receipt Display Conditional Trigger Logic
       if (data.amountPaid > 0 && !data.receiptDownloaded) {
         document.getElementById("receiptDownloadArea").style.display = "block";
       } else {
         document.getElementById("receiptDownloadArea").style.display = "none";
       }
 
-      // Courier Display Logic
       if (data.currentStage === "Dispatched" && data.courierInfo) {
         document.getElementById("courierTrackingBox").style.display = "block";
         document.getElementById("courierDetailsField").textContent = data.courierInfo;
@@ -341,18 +333,15 @@ function trackProject() {
 
       if (data.currentStage === "Request reviewed") {
         actionBox.style.display = "block";
-        actionBox.innerHTML = `<button class="btn" style="background:#28a745;" onclick="updateStage('${data.id}', 'Confirm review')">Confirm Review (Agree with Cost)</button>`;
+        actionBox.innerHTML = `<button class="btn" style="background:#28a745;" onclick="updateStage('${data.id}', 'Confirm review')">Confirm Review</button>`;
       } else if (data.currentStage === "Confirm review") {
         actionBox.style.display = "block";
         actionBox.innerHTML = `<button class="btn" style="background:#00a2ff;" onclick="updateStage('${data.id}', 'Place order')">Place Order</button>`;
       } else if (data.currentStage === "Place order") {
         actionBox.style.display = "block";
         actionBox.innerHTML = `
-          <h4 style="color:#856404; margin-bottom:5px;">💳 Submit Order & Payment Validation</h4>
-          <p>Please provide a 60% system deposit threshold (KES ${(data.reviewedCost * 0.6).toLocaleString()}) or pay in full to commission work.</p>
-          <div style="background:#fff; padding:12px; border-radius:6px; margin:10px 0; border:1px dashed #ffc107; font-size:14px;">
-            Pay to <strong>0103395072 AIRTEL MONEY</strong><br>Confirm your payment tracking details below.
-          </div>
+          <h4 style="color:#856404; margin-bottom:5px;">💳 Submit Order & Payment Verification</h4>
+          <p>Please provide a deposit or pay in full to commission work.</p>
           <div class="form-group"><label style="font-size:13px;">Transaction Code *</label><input type="text" id="actionTxCode" style="padding:8px;"></div>
           <div class="form-group"><label style="font-size:13px;">Amount Paid (KES) *</label><input type="number" id="actionTxAmount" style="padding:8px;"></div>
           <button class="btn" style="background:#28a745; width:100%; margin:0;" onclick="submitPaymentDetails('${data.id}')">Submit Order</button>
@@ -360,16 +349,6 @@ function trackProject() {
       } else if (data.currentStage === "Dispatched") {
         actionBox.style.display = "block";
         actionBox.innerHTML = `<button class="btn" style="background:#28a745;" onclick="updateStage('${data.id}', 'Delivered')">Confirm Delivery Receipt</button>`;
-      } else if (data.currentStage === "Delivered") {
-        actionBox.style.display = "block";
-        actionBox.innerHTML = `
-          <p>Rate our service performance response below:</p>
-          <div class="star-rating" id="starPanel">
-            <span onclick="rateProject('${data.id}', 1)">★</span><span onclick="rateProject('${data.id}', 2)">★</span><span onclick="rateProject('${data.id}', 3)">★</span><span onclick="rateProject('${data.id}', 4)">★</span><span onclick="rateProject('${data.id}', 5)">★</span>
-          </div>`;
-        if(data.starRating > 0) actionBox.innerHTML += `<p style="color:#28a745; font-weight:bold; margin-top:5px;">You rated us ${data.starRating} Stars!</p>`;
-      } else if (data.currentStage === "Order complete") {
-        actionBox.style.display = "block"; actionBox.innerHTML = `<p style="color:#155724; font-weight:bold; text-align:center;">🎯 Order Complete! Thank you.</p>`;
       }
 
       const imgElement = document.getElementById("resImg");
@@ -381,7 +360,7 @@ function trackProject() {
       else { docNode.style.display = "none"; }
 
       document.getElementById("statusResult").style.display = "block";
-    } else { alert("No engineering record found."); }
+    }
   });
 }
 
@@ -390,9 +369,8 @@ function updateStage(id, s) { db.collection("requests").doc(id).update({ current
 function submitPaymentDetails(id) {
   const code = document.getElementById("actionTxCode").value.trim();
   const amt = Number(document.getElementById("actionTxAmount").value.trim());
-  if(!code || !amt) { alert("Complete all validation items before submission."); return; }
-  db.collection("requests").doc(id).update({ transactionCode: code, amountPaid: amt, currentStage: "Order submitted", receiptDownloaded: false })
-    .then(() => alert("Payment parameters queued successfully for confirmation verification."));
+  if(!code || !amt) { alert("Complete all items."); return; }
+  db.collection("requests").doc(id).update({ transactionCode: code, amountPaid: amt, currentStage: "Order submitted", receiptDownloaded: false });
 }
 
 function generateReceiptPDF() {
@@ -416,8 +394,6 @@ function generateReceiptPDF() {
     db.collection("requests").doc(d.id).update({ receiptDownloaded: true });
   });
 }
-
-function rateProject(id, stars) { db.collection("requests").doc(id).update({ starRating: stars, currentStage: "Order complete" }); }
 </script>
 </body>
 </html>
