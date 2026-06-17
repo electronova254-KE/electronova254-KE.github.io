@@ -12,14 +12,14 @@
   .request-container { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px; border: 1px solid #e1e4e8; }
   .request-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f2f5; padding-bottom: 10px; margin-bottom: 15px; }
   .req-id-badge { background: #081c3a; color: white; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; }
+  .timestamp { color: #777; font-size: 13px; }
   .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; }
   .control-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-top: 15px; border-top: 1px dashed #ccc; align-items: top; }
   .stage-selector select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; }
   .update-btn { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s; }
   .update-btn:hover { background: #218838; }
-  .preview-thumb { max-height: 60px; max-width: 100%; border-radius: 4px; display: block; margin-top: 5px; border: 1px dashed #ccc; object-fit: contain; }
+  .preview-thumb { max-height: 50px; border-radius: 4px; display: block; margin-top: 5px; border: 1px dashed #ccc; }
   .alert-payment-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 14px; }
-  .status-msg { font-size: 12px; font-weight: bold; color: #666; margin-top: 4px; }
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -40,6 +40,7 @@
 </div>
 
 <script>
+// ELECTRONOVA LIVE CONFIGURATION LINK 
 const firebaseConfig = {
   apiKey: "AIzaSyD-cchejeEdQyBtab_fX2l-yBW8y9CEFBE",
   authDomain: "electronova-fef78.firebaseapp.com",
@@ -77,9 +78,6 @@ function initializeAdminTerminalStreams() {
     projectRequestsDB = [];
     snapshot.forEach((doc) => { projectRequestsDB.push(doc.data()); });
     renderAdminDashboard();
-  }, (error) => {
-    console.error("Firestore loading error: ", error);
-    document.getElementById("adminQueueContainer").innerHTML = `<p style="color:red; text-align:center; padding:20px;">Error syncing data: ${error.message}. Clear oversized database items if needed.</p>`;
   });
 }
 window.onload = initializeAdminTerminalStreams;
@@ -97,6 +95,7 @@ function renderAdminDashboard() {
     const card = document.createElement("div");
     card.className = "request-container";
     
+    // Add transaction highlights if student submitted deposit payment details
     let paymentNotificationHtml = "";
     if (req.transactionCode) {
       paymentNotificationHtml = `
@@ -120,7 +119,7 @@ function renderAdminDashboard() {
       <div class="details-grid">
         <p><strong>Student:</strong> ${req.studentName} (${req.admNo})</p>
         <p><strong>Course & Uni:</strong> ${req.course} - ${req.college}</p>
-        <p><strong>Est. Range:</strong> KES ${req.minBudget ? req.minBudget.toLocaleString() : '0'} - ${req.maxBudget ? req.maxBudget.toLocaleString() : '0'}</p>
+        <p><strong>Est. Range:</strong> KES ${req.minBudget.toLocaleString()} - ${req.maxBudget.toLocaleString()}</p>
         <p><strong>Contact:</strong> ${req.feedbackPref} (${req.contactInfo})</p>
         <p><strong>Rating Feedback:</strong> ${req.starRating ? `${req.starRating} Stars ★` : 'None yet'}</p>
       </div>
@@ -141,58 +140,24 @@ function renderAdminDashboard() {
         <div>
           <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Output Image Preview</label>
           <input type="file" id="fileInput-${idx}" accept="image/*" style="font-size:12px;">
-          <div id="imgStatus-${idx}" class="status-msg"></div>
           <img id="preview-${idx}" class="preview-thumb" src="${req.progressImageUrl || '#'}" style="${req.progressImageUrl ? 'display:block;' : 'display:none;'}">
         </div>
 
         <div>
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Report Document (PDF/Docx) or Link</label>
-          <input type="text" id="reportLink-${idx}" value="${req.reportFileUrl && req.reportFileUrl.startsWith('http') ? req.reportFileUrl : ''}" placeholder="Paste Google Drive/Dropbox Link" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; margin-bottom: 5px; font-size:13px;">
-          <p style="text-align:center; font-size:11px; color:#666; margin:2px 0;">— OR upload small file (<500KB) —</p>
+          <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Report Document (PDF/Docx)</label>
           <input type="file" id="reportInput-${idx}" accept=".pdf,.docx,.doc" style="font-size:12px;">
-          ${req.reportFileUrl ? `<p style="font-size:11px; color:green; margin-top:5px;">✅ Document Resource Hooked</p>` : ''}
+          ${req.reportFileUrl ? `<p style="font-size:11px; color:green; margin-top:5px;">✅ Report Uploaded</p>` : ''}
         </div>
 
         <div>
           <label style="display:block; margin-bottom:5px;">&nbsp;</label>
-          <button type="button" class="update-btn" id="updateBtn-${idx}" onclick="commitChanges(${idx})">Apply Changes</button>
+          <button type="button" class="update-btn" onclick="commitChanges(${idx})">Apply Changes</button>
         </div>
       </div>
     `;
     container.appendChild(card);
   });
-}
-
-// CLIENT SIDE IMAGE RESIZER MACHINE (Canvas Compressor)
-function compressImage(file, quality = 0.7, maxWidth = 800) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Output compressed base64 string directly
-        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-        resolve(compressedBase64);
-      };
-    };
-  });
-}
+});
 
 function commitChanges(index) {
   const project = projectRequestsDB[index];
@@ -200,10 +165,8 @@ function commitChanges(index) {
   let selectedStage = document.getElementById(`stageSelect-${index}`).value;
   const fileInput = document.getElementById(`fileInput-${index}`);
   const reportInput = document.getElementById(`reportInput-${index}`);
-  const reportLinkInput = document.getElementById(`reportLink-${index}`).value.trim();
-  const actionBtn = document.getElementById(`updateBtn-${index}`);
-  const imgStatus = document.getElementById(`imgStatus-${index}`);
 
+  // Automatically advance stage from pending review to reviewed if price is set
   if (project.currentStage === "Request received(pending review)" && quotedCost > 0) {
     selectedStage = "Request reviewed";
   }
@@ -213,72 +176,64 @@ function commitChanges(index) {
     currentStage: selectedStage
   };
 
-  // Assign the manual cloud URL string if provided
-  if (reportLinkInput) {
-    updateObject.reportFileUrl = reportLinkInput;
+  // WHATSAPP AUTOMATED DISPATCH HANDOFF
+  if (project.feedbackPref === "WhatsApp") {
+    let cleanPhone = project.contactInfo.replace(/\D/g, ''); 
+    if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.substring(1);
+    else if (cleanPhone.startsWith('7') || cleanPhone.startsWith('1')) cleanPhone = '254' + cleanPhone;
+
+    let message = `Hello *${project.studentName}*,\n\n` +
+                  `This is an update regarding your Electrónova Project Order: *${project.id}*.\n\n` +
+                  `▫️ *Status Phase:* ${selectedStage}\n`;
+    
+    if(quotedCost > 0) {
+      message += `▫️ *Quoted Project Price:* KES ${quotedCost.toLocaleString()}\n` +
+                 `▫️ *Required Deposit (60%):* KES ${(quotedCost * 0.6).toLocaleString()}\n`;
+    }
+    
+    message += `\nTrack your live build details or confirm milestones directly at electronova.co.ke.\n\n` +
+               `*Electrónova Technical Lab Team*`;
+
+    window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`, '_blank');
   }
 
-  actionBtn.disabled = true;
-  actionBtn.innerText = "Processing Assets...";
+  // Handle Image Conversion & Document Compilation
+  const processUploads = () => {
+    return new Promise((resolve) => {
+      let filesToLoad = 0;
+      let filesLoaded = 0;
 
-  const processUploads = async () => {
-    // 1. Process and downscale images safely
-    if (fileInput.files.length > 0) {
-      imgStatus.innerText = "⏳ Compressing Image...";
-      updateObject.progressImageUrl = await compressImage(fileInput.files[0], 0.6, 700);
-      imgStatus.innerText = "✅ Compressed Successfully.";
-    }
+      if (fileInput.files.length > 0) filesToLoad++;
+      if (reportInput.files.length > 0) filesToLoad++;
 
-    // 2. Process physical documents if attached natively
-    if (reportInput.files.length > 0) {
-      if (reportInput.files[0].size > 600 * 1024) {
-        alert("Warning: This document file is too large for the free tier database database. Please use a Google Drive/Dropbox share link instead!");
-        throw new Error("File limit risk halted.");
+      if (filesToLoad === 0) return resolve();
+
+      if (fileInput.files.length > 0) {
+        const r1 = new FileReader();
+        r1.onloadend = function() {
+          updateObject.progressImageUrl = r1.result;
+          filesLoaded++;
+          if(filesLoaded === filesToLoad) resolve();
+        };
+        r1.readAsDataURL(fileInput.files[0]);
       }
-      await new Promise((resolve) => {
+
+      if (reportInput.files.length > 0) {
         const r2 = new FileReader();
         r2.onloadend = function() {
-          updateObject.reportFileUrl = r2.result;
-          resolve();
+          updateObject.reportFileUrl = r2.result; // Converts document cleanly to downloadable Base64 string asset
+          filesLoaded++;
+          if(filesLoaded === filesToLoad) resolve();
         };
         r2.readAsDataURL(reportInput.files[0]);
-      });
-    }
+      }
+    });
   };
 
   processUploads().then(() => {
     db.collection("requests").doc(project.id).update(updateObject).then(() => {
-      actionBtn.disabled = false;
-      actionBtn.innerText = "Apply Changes";
-      
-      // WhatsApp Messaging Delivery Hook
-      if (project.feedbackPref === "WhatsApp") {
-        let cleanPhone = project.contactInfo.replace(/\D/g, ''); 
-        if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.substring(1);
-        else if (cleanPhone.startsWith('7') || cleanPhone.startsWith('1')) cleanPhone = '254' + cleanPhone;
-
-        let message = `Hello *${project.studentName}*,\n\n` +
-                      `This is an update regarding your Electrónova Project Order: *${project.id}*.\n\n` +
-                      `▫️ *Status Phase:* ${selectedStage}\n`;
-        
-        if(quotedCost > 0) {
-          message += `▫️ *Quoted Project Price:* KES ${quotedCost.toLocaleString()}\n` +
-                     `▫️ *Required Deposit (60%):* KES ${(quotedCost * 0.6).toLocaleString()}\n`;
-        }
-        
-        message += `\nTrack your build details directly at electronova.co.ke.\n\n` +
-                   `*Electrónova Technical Lab Team*`;
-
-        window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`, '_blank');
-      }
-    }).catch(err => {
-      alert("Firestore Sync Failed: " + err);
-      actionBtn.disabled = false;
-      actionBtn.innerText = "Apply Changes";
-    });
-  }).catch(() => {
-    actionBtn.disabled = false;
-    actionBtn.innerText = "Apply Changes";
+      console.log("Database parameters synced cleanly.");
+    }).catch(err => alert("Firestore Sync Failed: " + err));
   });
 }
 </script>
