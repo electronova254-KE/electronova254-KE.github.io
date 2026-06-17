@@ -16,9 +16,6 @@
   .control-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding-top: 15px; border-top: 1px dashed #ccc; align-items: top; }
   .stage-selector select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; }
   .update-btn { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s; }
-  .update-btn:hover { background: #218838; }
-  .preview-thumb { max-height: 60px; max-width: 100%; border-radius: 4px; display: block; margin-top: 5px; border: 1px dashed #ccc; object-fit: contain; }
-  .alert-payment-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 14px; }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -28,11 +25,10 @@
 <header>
   <div>
     <h1>Electrónova Administrative Control Terminal</h1>
-    <p style="color:#666; margin-top: 5px;">Manage incoming engineering requests, pricing structures, documentation assets, and workflows.</p>
+    <p style="color:#666; margin-top: 5px;">Manage incoming requests, pricing, documentation, and workflows.</p>
   </div>
 </header>
 
-<h2 style="color: #081c3a; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">🛠️ Engineering Production & Order Pipeline</h2>
 <div id="adminQueueContainer"><p style="text-align: center; color: #777; padding: 40px;">Syncing cloud datastore pipeline metrics...</p></div>
 
 <script>
@@ -64,62 +60,42 @@ window.onload = initializeAdminTerminalStreams;
 
 function renderAdminDashboard() {
   const container = document.getElementById("adminQueueContainer"); container.innerHTML = "";
-  if(projectRequestsDB.length === 0) { container.innerHTML = `<p style="text-align: center; color: #777; padding: 40px;">No incoming requests found.</p>`; return; }
-
   projectRequestsDB.forEach((req, idx) => {
     const card = document.createElement("div"); card.className = "request-container";
     const balance = (req.reviewedCost || 0) - (req.amountPaid || 0);
     
-    let paymentNotificationHtml = "";
-    if (req.transactionCode) {
-      paymentNotificationHtml = `
-        <div class="alert-payment-box">
-          💰 <strong>Payment Alert!</strong> Student logged KES <strong>${req.amountPaid.toLocaleString()}</strong> via Code: <strong>${req.transactionCode}</strong>.
-        </div>`;
-    }
-
     card.innerHTML = `
       <div class="request-header">
-        <div><span class="req-id-badge">${req.id}</span> <span style="margin-left: 10px; font-weight: bold; color: #081c3a;">${req.projectTitle}</span></div>
-        <span style="font-weight:bold; color:#00a2ff; background:#eef4fb; padding:4px 10px; border-radius:4px; font-size:13px;">${req.currentStage}</span>
+        <div><span class="req-id-badge">${req.id}</span> <strong>${req.projectTitle}</strong></div>
+        <span style="font-weight:bold; color:#00a2ff;">${req.currentStage}</span>
       </div>
-      ${paymentNotificationHtml}
       <div class="details-grid">
         <p><strong>Student:</strong> ${req.studentName} (${req.admNo})</p>
         <p><strong>Total Cost:</strong> KES ${req.reviewedCost ? req.reviewedCost.toLocaleString() : '0'}</p>
         <p><strong>Confirmed Paid:</strong> KES ${(req.amountPaid || 0).toLocaleString()}</p>
-        <p><strong>Outstanding Balance:</strong> KES ${balance.toLocaleString()}</p>
-        <p><strong>Contact:</strong> ${req.contactInfo}</p>
+        <p><strong>Balance:</strong> KES ${balance.toLocaleString()}</p>
       </div>
       <div class="control-section">
         <div>
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Set Total Project Cost (KES)</label>
-          <input type="number" id="costInput-${idx}" value="${req.reviewedCost || ''}" style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+          <label>Set Total Project Cost (KES)</label>
+          <input type="number" id="costInput-${idx}" value="${req.reviewedCost || ''}" style="width:100%; padding:8px;">
         </div>
         <div>
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Actual Amount Confirmed Paid (KES)</label>
-          <input type="number" id="paidInput-${idx}" value="${req.amountPaid || 0}" style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; color:#28a745; font-weight:bold;">
+          <label>Actual Amount Confirmed Paid (KES)</label>
+          <input type="number" id="paidInput-${idx}" value="${req.amountPaid || 0}" style="width:100%; padding:8px; color:#28a745; font-weight:bold;">
         </div>
         <div class="stage-selector">
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Change Workflow Stage</label>
+          <label>Change Workflow Stage</label>
           <select id="stageSelect-${idx}" onchange="toggleCourierField(${idx})">
             ${ORDER_STAGES.map(stage => `<option value="${stage}" ${req.currentStage === stage ? 'selected' : ''}>${stage}</option>`).join('')}
           </select>
         </div>
         <div id="courierDiv-${idx}" style="${req.currentStage === 'Dispatched' ? 'display:block;' : 'display:none;'}">
-          <label style="font-weight:bold; display:block; margin-bottom:5px; color:#17a2b8;">Delivery Driver & Phone #</label>
-          <input type="text" id="courierInput-${idx}" value="${req.courierInfo || ''}" placeholder="e.g. John (0712345678) - Wells Fargo" style="width:100%; padding:8px; border-radius:5px; border:1px solid #17a2b8;">
+          <label style="color:#17a2b8;">Delivery Driver & Phone #</label>
+          <input type="text" id="courierInput-${idx}" value="${req.courierInfo || ''}" placeholder="e.g. Kiprono (0712345678)" style="width:100%; padding:8px; border:1px solid #17a2b8;">
         </div>
         <div>
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Tracking Media</label>
-          <input type="file" id="fileInput-${idx}" accept="image/*" style="font-size:11px;">
-        </div>
-        <div>
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Documentation / Cloud Resource Link</label>
-          <input type="text" id="reportLink-${idx}" value="${req.reportFileUrl || ''}" placeholder="Paste PDF URL or File String" style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; font-size:12px;">
-        </div>
-        <div>
-          <label style="display:block; margin-bottom:5px;">&nbsp;</label>
+          <label>&nbsp;</label>
           <button type="button" class="update-btn" id="updateBtn-${idx}" onclick="commitChanges(${idx})">Apply Changes</button>
         </div>
       </div>`;
@@ -132,65 +108,33 @@ function toggleCourierField(idx) {
   document.getElementById(`courierDiv-${idx}`).style.display = (stage === "Dispatched") ? "block" : "none";
 }
 
-function compressImage(file, quality = 0.7, maxWidth = 800) {
-  return new Promise((resolve) => {
-    const reader = new FileReader(); reader.readAsDataURL(file);
-    reader.onload = (e) => {
-      const img = new Image(); img.src = e.target.result;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-    };
-  });
-}
-
 async function commitChanges(index) {
   const project = projectRequestsDB[index];
   const quotedCost = Number(document.getElementById(`costInput-${index}`).value);
   const totalPaid = Number(document.getElementById(`paidInput-${index}`).value);
   let selectedStage = document.getElementById(`stageSelect-${index}`).value;
   const courierDetails = document.getElementById(`courierInput-${index}`) ? document.getElementById(`courierInput-${index}`).value.trim() : "";
-  const fileInput = document.getElementById(`fileInput-${index}`);
-  const reportLink = document.getElementById(`reportLink-${index}`).value.trim();
   const actionBtn = document.getElementById(`updateBtn-${index}`);
 
-  if (project.currentStage === "Request received(pending review)" && quotedCost > 0) { selectedStage = "Request reviewed"; }
-
   const updateObject = { reviewedCost: quotedCost, amountPaid: totalPaid, currentStage: selectedStage, courierInfo: courierDetails };
-  if (reportLink) updateObject.reportFileUrl = reportLink;
-  
-  // Reset downled receipt trigger if a new subsequent milestone transaction injection happens
   if (totalPaid !== project.amountPaid) { updateObject.receiptDownloaded = false; }
 
-  actionBtn.disabled = true; actionBtn.innerText = "Syncing...";
-
-  if (fileInput.files.length > 0) { updateObject.progressImageUrl = await compressImage(fileInput.files[0], 0.6, 700); }
-
+  actionBtn.disabled = true;
   db.collection("requests").doc(project.id).update(updateObject).then(() => {
-    actionBtn.disabled = false; actionBtn.innerText = "Apply Changes";
-
-    // WhatsApp Message Optimization Engine
+    actionBtn.disabled = false;
     let cleanPhone = project.contactInfo.replace(/\D/g, '');
     if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.substring(1);
-    else if (cleanPhone.startsWith('7') || cleanPhone.startsWith('1')) cleanPhone = '254' + cleanPhone;
-
+    
     const remainingBal = quotedCost - totalPaid;
-    let msg = `Hello *${project.studentName}*,\n\nUpdate on Order *${project.id}* (*${project.projectTitle}*):\n\n` +
-              `▫️ *Status Phase:* ${selectedStage}\n` +
-              `▫️ *Total Project Cost:* KES ${quotedCost.toLocaleString()}\n` +
-              `▫️ *Total Confirmed Paid:* KES ${totalPaid.toLocaleString()}\n` +
-              `▫️ *Outstanding Balance:* KES ${remainingBal.toLocaleString()}\n`;
+    let msg = `Hello *${project.studentName}*,\n\nUpdate on Order *${project.id}*:\n\n` +
+              `▫ *Status:* ${selectedStage}\n` +
+              `▫ *Total Cost:* KES ${quotedCost.toLocaleString()}\n` +
+              `▫ *Amount Paid:* KES ${totalPaid.toLocaleString()}\n` +
+              `▫ *Balance:* KES ${remainingBal.toLocaleString()}\n`;
     
     if (selectedStage === "Dispatched" && courierDetails) {
-      msg += `\n🚚 *Courier Details:* ${courierDetails}\n`;
+      msg += `\n🚚 *Courier Info:* ${courierDetails}\n`;
     }
-    
-    msg += `\nTrack structures or print your receipt at electronova.co.ke.`;
     window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`, '_blank');
   });
 }
