@@ -14,12 +14,12 @@
   .req-id-badge { background: #081c3a; color: white; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; }
   .timestamp { color: #777; font-size: 13px; }
   .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; }
-  .control-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-top: 15px; border-top: 1px dashed #ccc; align-items: center; }
+  .control-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding-top: 15px; border-top: 1px dashed #ccc; align-items: top; }
   .stage-selector select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; }
-  .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
-  .update-btn { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; }
+  .update-btn { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s; }
   .update-btn:hover { background: #218838; }
-  .preview-thumb { max-height: 70px; border-radius: 4px; display: block; margin-top: 5px; border: 1px dashed #ccc; }
+  .preview-thumb { max-height: 50px; border-radius: 4px; display: block; margin-top: 5px; border: 1px dashed #ccc; }
+  .alert-payment-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 14px; }
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -30,18 +30,13 @@
 <header>
   <div>
     <h1>Electrónova Administrative Control Terminal</h1>
-    <p style="color:#666; margin-top: 5px;">Manage incoming engineering requests, inspect custom blueprints, and update progress configurations.</p>
+    <p style="color:#666; margin-top: 5px;">Manage incoming engineering requests, pricing structures, documentation assets, and workflows.</p>
   </div>
 </header>
 
-<h2 style="color: #081c3a; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">💡 Incoming Student Project Blueprints</h2>
-<div id="blueprintQueueContainer" style="margin-bottom: 5px; max-height: 400px; overflow-y: auto; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ccc;">
-  <p style="text-align: center; color: #777; padding: 20px;">Loading student concept blueprints...</p>
-</div>
-
-<h2 style="color: #081c3a; margin-top: 40px; margin-bottom: 15px; border-bottom: 2px solid #00a2ff; padding-bottom: 5px;">🛠️ Active Production Tracking Pipeline</h2>
+<h2 style="color: #081c3a; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">🛠️ Engineering Production & Order Pipeline</h2>
 <div id="adminQueueContainer">
-  <p style="text-align: center; color: #777; padding: 40px;">Syncing with Electrónova cloud datastore node parameters...</p>
+  <p style="text-align: center; color: #777; padding: 40px;">Syncing cloud datastore pipeline metrics...</p>
 </div>
 
 <script>
@@ -60,41 +55,29 @@ const db = firebase.firestore();
 
 let projectRequestsDB = [];
 
-// Initialize real-time tracking streams across both distinct cloud nodes
+const ORDER_STAGES = [
+  "Request received(pending review)",
+  "Request reviewed",
+  "Confirm review",
+  "Place order",
+  "Submit Order",
+  "Order submitted",
+  "Order received",
+  "Design stage",
+  "Fabrication stage",
+  "Testing stage",
+  "Final documentation",
+  "Completed awaiting delivery",
+  "Dispatched",
+  "Delivered",
+  "Order complete"
+];
+
 function initializeAdminTerminalStreams() {
-  // Stream 1: Active Production Pipeline
   db.collection("requests").onSnapshot((snapshot) => {
     projectRequestsDB = [];
-    snapshot.forEach((doc) => {
-      projectRequestsDB.push(doc.data());
-    });
+    snapshot.forEach((doc) => { projectRequestsDB.push(doc.data()); });
     renderAdminDashboard();
-  });
-
-  // Stream 2: Live Idea Blueprints
-  db.collection("blueprints").orderBy("submittedAt", "desc").onSnapshot((snapshot) => {
-    const blueprintContainer = document.getElementById("blueprintQueueContainer");
-    blueprintContainer.innerHTML = "";
-
-    if (snapshot.empty) {
-      blueprintContainer.innerHTML = `<p style="text-align: center; color: #777; padding: 15px;">No custom project blueprints submitted yet.</p>`;
-      return;
-    }
-
-    snapshot.forEach((doc) => {
-      const idea = doc.data();
-      const itemCard = document.createElement("div");
-      itemCard.style.cssText = "border-left: 4px solid #28a745; padding: 12px; margin-bottom: 10px; background: #f9f9f9; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);";
-      itemCard.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; color:#666;">
-          <span>👤 <strong>${idea.studentName}</strong></span>
-          <span>📅 ${idea.submittedAt}</span>
-        </div>
-        <h4 style="color:#081c3a; margin-bottom:6px;">💡 Project Title: ${idea.projectTitle}</h4>
-        <p style="font-size:14px; background:#fff; padding:10px; border:1px solid #eee; border-radius:4px; white-space:pre-wrap; color:#444;">${idea.blueprintDetails}</p>
-      `;
-      blueprintContainer.appendChild(itemCard);
-    });
   });
 }
 window.onload = initializeAdminTerminalStreams;
@@ -104,131 +87,154 @@ function renderAdminDashboard() {
   container.innerHTML = "";
 
   if(projectRequestsDB.length === 0) {
-    container.innerHTML = `<p style="text-align: center; color: #777; padding: 40px;">No requests found in the database.</p>`;
+    container.innerHTML = `<p style="text-align: center; color: #777; padding: 40px;">No incoming requests found.</p>`;
     return;
   }
 
   projectRequestsDB.forEach((req, idx) => {
     const card = document.createElement("div");
     card.className = "request-container";
+    
+    // Add transaction highlights if student submitted deposit payment details
+    let paymentNotificationHtml = "";
+    if (req.transactionCode) {
+      paymentNotificationHtml = `
+        <div class="alert-payment-box">
+          💰 <strong>Payment Alert!</strong> Student claims payment of KES <strong>${req.paymentAmountEntered.toLocaleString()}</strong> via Code: <strong>${req.transactionCode}</strong>.
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div class="request-header">
         <div>
           <span class="req-id-badge">${req.id}</span>
           <span style="margin-left: 10px; font-weight: bold; color: #081c3a;">${req.projectTitle}</span>
         </div>
-        <span class="timestamp">📅 ${req.timestamp.replace("T", " ")}</span>
+        <span style="font-weight:bold; color:#00a2ff; background:#eef4fb; padding:4px 10px; border-radius:4px; font-size:13px;">${req.currentStage}</span>
       </div>
+
+      ${paymentNotificationHtml}
       
       <div class="details-grid">
         <p><strong>Student:</strong> ${req.studentName} (${req.admNo})</p>
-        <p><strong>Institution:</strong> ${req.college}</p>
-        <p><strong>Course:</strong> ${req.course}</p>
-        <p><strong>Region/County:</strong> ${req.county}</p>
-        <p><strong>Category:</strong> ${req.category} ${req.specifyOther ? `(${req.specifyOther})` : ''}</p>
-        <p><strong>Budget Range:</strong> KES ${req.minBudget.toLocaleString()} - ${req.maxBudget.toLocaleString()}</p>
+        <p><strong>Course & Uni:</strong> ${req.course} - ${req.college}</p>
+        <p><strong>Est. Range:</strong> KES ${req.minBudget.toLocaleString()} - ${req.maxBudget.toLocaleString()}</p>
         <p><strong>Contact:</strong> ${req.feedbackPref} (${req.contactInfo})</p>
+        <p><strong>Rating Feedback:</strong> ${req.starRating ? `${req.starRating} Stars ★` : 'None yet'}</p>
       </div>
 
       <div class="control-section">
+        <div>
+          <label style="font-weight:bold; display:block; margin-bottom:5px;">Set Actual Project Cost (KES)</label>
+          <input type="number" id="costInput-${idx}" value="${req.reviewedCost || ''}" placeholder="Enter Quote Amount" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc;">
+        </div>
+
         <div class="stage-selector">
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Workflow Stage</label>
+          <label style="font-weight:bold; display:block; margin-bottom:5px;">Change Workflow Stage</label>
           <select id="stageSelect-${idx}">
-            <option value="Designed" ${req.currentStage === "Designed" ? 'selected' : ''}>Designed</option>
-            <option value="Fabricated" ${req.currentStage === "Fabricated" ? 'selected' : ''}>Fabricated</option>
-            <option value="Tested" ${req.currentStage === "Tested" ? 'selected' : ''}>Tested</option>
-            <option value="Completed" ${req.currentStage === "Completed" ? 'selected' : ''}>Completed</option>
+            ${ORDER_STAGES.map(stage => `<option value="${stage}" ${req.currentStage === stage ? 'selected' : ''}>${stage}</option>`).join('')}
           </select>
         </div>
 
         <div>
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Output Image</label>
-          <input type="file" id="fileInput-${idx}" accept="image/*" onchange="previewLocalImage(event, 'preview-${idx}')">
+          <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Output Image Preview</label>
+          <input type="file" id="fileInput-${idx}" accept="image/*" style="font-size:12px;">
           <img id="preview-${idx}" class="preview-thumb" src="${req.progressImageUrl || '#'}" style="${req.progressImageUrl ? 'display:block;' : 'display:none;'}">
         </div>
 
         <div>
-          <label class="checkbox-label"><input type="checkbox" id="payCheck-${idx}" ${req.isPaid ? 'checked' : ''}> 💳 Paid</label>
-          <label class="checkbox-label" style="margin-top:10px;"><input type="checkbox" id="delivCheck-${idx}" ${req.isDelivered ? 'checked' : ''}> 📦 Delivered</label>
+          <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Report Document (PDF/Docx)</label>
+          <input type="file" id="reportInput-${idx}" accept=".pdf,.docx,.doc" style="font-size:12px;">
+          ${req.reportFileUrl ? `<p style="font-size:11px; color:green; margin-top:5px;">✅ Report Uploaded</p>` : ''}
         </div>
 
-        <button type="button" class="update-btn" onclick="commitChanges(${idx})">Apply Changes</button>
+        <div>
+          <label style="display:block; margin-bottom:5px;">&nbsp;</label>
+          <button type="button" class="update-btn" onclick="commitChanges(${idx})">Apply Changes</button>
+        </div>
       </div>
     `;
     container.appendChild(card);
   });
-}
-
-function previewLocalImage(event, previewId) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const img = document.getElementById(previewId);
-      img.src = e.target.result;
-      img.style.display = "block";
-    }
-    reader.readAsDataURL(file);
-  }
-}
+});
 
 function commitChanges(index) {
   const project = projectRequestsDB[index];
-  const selectedStage = document.getElementById(`stageSelect-${index}`).value;
-  const paymentConfirmed = document.getElementById(`payCheck-${index}`).checked;
-  const deliveryConfirmed = document.getElementById(`delivCheck-${index}`).checked;
+  const quotedCost = Number(document.getElementById(`costInput-${index}`).value);
+  let selectedStage = document.getElementById(`stageSelect-${index}`).value;
   const fileInput = document.getElementById(`fileInput-${index}`);
+  const reportInput = document.getElementById(`reportInput-${index}`);
+
+  // Automatically advance stage from pending review to reviewed if price is set
+  if (project.currentStage === "Request received(pending review)" && quotedCost > 0) {
+    selectedStage = "Request reviewed";
+  }
 
   const updateObject = {
-    currentStage: selectedStage,
-    isPaid: paymentConfirmed,
-    isDelivered: deliveryConfirmed
+    reviewedCost: quotedCost,
+    currentStage: selectedStage
   };
 
-  // 1. TRIGGER WHATSAPP NOTIFICATION IMMEDIATELY ON TAP (Bypasses Browser Pop-up Blockers)
+  // WHATSAPP AUTOMATED DISPATCH HANDOFF
   if (project.feedbackPref === "WhatsApp") {
     let cleanPhone = project.contactInfo.replace(/\D/g, ''); 
+    if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.substring(1);
+    else if (cleanPhone.startsWith('7') || cleanPhone.startsWith('1')) cleanPhone = '254' + cleanPhone;
+
+    let message = `Hello *${project.studentName}*,\n\n` +
+                  `This is an update regarding your Electrónova Project Order: *${project.id}*.\n\n` +
+                  `▫️ *Status Phase:* ${selectedStage}\n`;
     
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '254' + cleanPhone.substring(1);
-    } else if (cleanPhone.startsWith('7') || cleanPhone.startsWith('1')) {
-      cleanPhone = '254' + cleanPhone;
+    if(quotedCost > 0) {
+      message += `▫️ *Quoted Project Price:* KES ${quotedCost.toLocaleString()}\n` +
+                 `▫️ *Required Deposit (60%):* KES ${(quotedCost * 0.6).toLocaleString()}\n`;
     }
-
-    let paymentStatus = paymentConfirmed ? "✅ Confirmed & Processed" : "⏳ Pending Verification";
-    let deliveryStatus = deliveryConfirmed ? "📦 Handed over/Dispatched" : "🛠️ Active in Lab";
-
-    const message = `Hello *${project.studentName}*,\n\n` +
-                    `This is an official update from *Electrónova* regarding your project ID: *${project.id}* (*${project.projectTitle}*).\n\n` +
-                    `▫️ *Workflow Stage:* ${selectedStage}\n` +
-                    `▫️ *Payment Status:* ${paymentStatus}\n` +
-                    `▫️ *Delivery Status:* ${deliveryStatus}\n\n` +
-                    `Track live structural changes or schematic updates on our terminal at electronova.co.ke.\n\n` +
-                    `Thank you for engineering with us!\n` +
-                    `*Electrónova Technical Team*`;
-
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedMessage}`;
     
-    window.open(whatsappUrl, '_blank');
+    message += `\nTrack your live build details or confirm milestones directly at electronova.co.ke.\n\n` +
+               `*Electrónova Technical Lab Team*`;
+
+    window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`, '_blank');
   }
 
-  // 2. RUN FIREBASE CLOUD DATABASE WRITE OPERATION IN THE BACKGROUND
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onloadend = function() {
-      updateObject.progressImageUrl = reader.result;
-      db.collection("requests").doc(project.id).update(updateObject).then(() => {
-        console.log("Database write completed with Image payload for document ID: " + project.id);
-      }).catch(err => alert("Firestore update failed: " + err));
-    };
-    reader.readAsDataURL(file);
-  } else {
+  // Handle Image Conversion & Document Compilation
+  const processUploads = () => {
+    return new Promise((resolve) => {
+      let filesToLoad = 0;
+      let filesLoaded = 0;
+
+      if (fileInput.files.length > 0) filesToLoad++;
+      if (reportInput.files.length > 0) filesToLoad++;
+
+      if (filesToLoad === 0) return resolve();
+
+      if (fileInput.files.length > 0) {
+        const r1 = new FileReader();
+        r1.onloadend = function() {
+          updateObject.progressImageUrl = r1.result;
+          filesLoaded++;
+          if(filesLoaded === filesToLoad) resolve();
+        };
+        r1.readAsDataURL(fileInput.files[0]);
+      }
+
+      if (reportInput.files.length > 0) {
+        const r2 = new FileReader();
+        r2.onloadend = function() {
+          updateObject.reportFileUrl = r2.result; // Converts document cleanly to downloadable Base64 string asset
+          filesLoaded++;
+          if(filesLoaded === filesToLoad) resolve();
+        };
+        r2.readAsDataURL(reportInput.files[0]);
+      }
+    });
+  };
+
+  processUploads().then(() => {
     db.collection("requests").doc(project.id).update(updateObject).then(() => {
-      console.log("Database write completed successfully for document ID: " + project.id);
-    }).catch(err => alert("Firestore update failed: " + err));
-  }
+      console.log("Database parameters synced cleanly.");
+    }).catch(err => alert("Firestore Sync Failed: " + err));
+  });
 }
 </script>
 </body>
